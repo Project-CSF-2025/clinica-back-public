@@ -4,9 +4,7 @@ const ReportStatusHistoryModel = {
     addStatusChange: (statusChangeData, callback) => {
         const query = `INSERT INTO report_status_history (id_report, old_status, new_status) 
                        VALUES (?, ?, ?)`;
-
         const { id_report, old_status, new_status } = statusChangeData;
-
         db.query(query, [id_report, old_status, new_status], callback);
     },
 
