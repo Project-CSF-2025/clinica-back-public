@@ -1,39 +1,54 @@
-const ReportModel = require('../models/reportModel');
+const CreateReportDTO = require('../dtos/createReport.dto');
+const ReportService = require('../services/reportService');
 
-// Create a new report
-exports.createReport = (req, res) => {
-    const { id_user, department, location, subject, description, status } = req.body;
+const ReportController = {
+    async createReport(req, res) {
+        try {
+            // Create and validate DTO
+            const reportData = new CreateReportDTO(req.body);
 
-    // Validate required fields
-    if (!id_user || !department || !location || !subject || !description) {
-        return res.status(400).json({ message: 'Missing required fields to create a report' });
+            // Call the service to create the report
+            const newReport = await ReportService.createReport(reportData);
+            res.status(201).json(newReport);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
+    async getReportByCode(req, res) {
+        try {
+            const { reportCode } = req.params;
+            const report = await ReportService.getReportByCode(reportCode);
+
+            if (!report) return res.status(404).json({ error: 'Report not found' });
+            res.json(report);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    async updateReport(req, res) {
+        try {
+            const reportId = req.params.id;
+            const updateData = req.body;
+
+            const updatedReport = await ReportService.updateReport(reportId, updateData);
+            res.json(updatedReport);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
+    async deleteReport(req, res) {
+        try {
+            const reportId = req.params.id;
+
+            await ReportService.deleteReport(reportId);
+            res.status(204).send();  // No Content
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
-
-    // Call the model to create the report
-    ReportModel.createReport({ id_user, department, location, subject, description, status }, (err, result) => {
-        if (err) {
-            console.error('Error creating report:', err);
-            return res.status(500).json({ message: 'Failed to create report' });
-        }
-
-        res.status(201).json({ message: 'Report created successfully', reportId: result.insertId, reportCode: result.report_code });
-    });
 };
 
-// Get a report by its code
-exports.getReportByCode = (req, res) => {
-    const { reportCode } = req.params;
-
-    ReportModel.getReportByCode(reportCode, (err, report) => {
-        if (err) {
-            console.error('Error fetching report:', err);
-            return res.status(500).json({ message: 'Failed to fetch report' });
-        }
-
-        if (!report || report.length === 0) {
-            return res.status(404).json({ message: 'Report not found' });
-        }
-
-        res.status(200).json(report[0]);
-    });
-};
+module.exports = ReportController;

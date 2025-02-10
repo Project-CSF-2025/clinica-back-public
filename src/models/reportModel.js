@@ -1,67 +1,35 @@
 const db = require('../config/database');
 
-// Function to generate a report code (example: 'REP1234')
-const generateReportCode = () => {
-    const prefix = 'REP';
-    const randomNumber = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
-    return `${prefix}${randomNumber}`;
-};
-
-// Function to ensure report_code is unique before insertion
-const generateUniqueReportCode = (callback) => {
-    const tryGenerate = () => {
-        const newCode = generateReportCode();
-        db.query('SELECT report_code FROM reports WHERE report_code = ?', [newCode], (err, results) => {
-            if (err) return callback(err);
-            if (results.length > 0) {
-                // If code already exists, try again
-                tryGenerate();
-            } else {
-                // Code is unique
-                callback(null, newCode);
-            }
-        });
-    };
-
-    tryGenerate();
-};
-
 const ReportModel = {
-    // Create a new report in the database
-    createReport: (reportData, callback) => {
+    async createReport(reportData) {
         const query = `INSERT INTO reports (id_user, report_code, department, location, subject, description, status) 
                        VALUES (?, ?, ?, ?, ?, ?, ?)`;
+        const { id_user, report_code, department, location, subject, description, status } = reportData;
 
-        const { id_user, department, location, subject, description, status } = reportData;
-
-        // Generate a unique report code and insert the report
-        generateUniqueReportCode((err, report_code) => {
-            if (err) {
-                console.error('Error generating unique report code:', err);
-                return callback(err);
-            }
-
-            db.query(query, [id_user, report_code, department, location, subject, description, status || 'No leído'], (err, result) => {
-                if (err) {
-                    console.error('Error inserting report:', err.message || err);
-                    return callback(err);
-                }
-
-                callback(null, { insertId: result.insertId, report_code });
-            });
-        });
+        const [result] = await db.promise().query(query, [id_user, report_code, department, location, subject, description, status || 'No leído']);
+        return { insertId: result.insertId, report_code };
     },
 
-    // Get a report by its report code
-    getReportByCode: (reportCode, callback) => {
+    async getReportByCode(reportCode) {
         const query = `SELECT * FROM reports WHERE report_code = ?`;
-        db.query(query, [reportCode], (err, results) => {
-            if (err) {
-                console.error('Error fetching report:', err.message || err);
-                return callback(err);
-            }
-            callback(null, results);
-        });
+
+        const [results] = await db.promise().query(query, [reportCode]);
+        return results[0] || null;
+    },
+
+    async updateReport(reportId, updateData) {
+        const query = `UPDATE reports SET subject = ?, description = ?, status = ? WHERE id = ?`;
+        const { subject, description, status } = updateData;
+
+        const [result] = await db.promise().query(query, [subject, description, status, reportId]);
+        return result;
+    },
+
+    async deleteReport(reportId) {
+        const query = `DELETE FROM reports WHERE id = ?`;
+
+        const [result] = await db.promise().query(query, [reportId]);
+        return result;
     }
 };
 

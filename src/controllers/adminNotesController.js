@@ -1,31 +1,28 @@
-const AdminNotesModel = require('../models/adminNotesModel');
+const CreateAdminNoteDTO = require('../dtos/createAdminNote.dto');
+const AdminNotesService = require('../services/adminNotesService');
 
-exports.createNote = (req, res) => {
-    const { id_report, admin_message } = req.body;
+const AdminNotesController = {
+    async createNote(req, res) {
+        try {
+            const noteData = new CreateAdminNoteDTO(req.body);
 
-    if (!id_report || !admin_message) {
-        return res.status(400).json({ message: 'Required fields are missing' });
+            const newNote = await AdminNotesService.createNote(noteData);
+            res.status(201).json(newNote);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
+    async getNotesByReportId(req, res) {
+        try {
+            const { reportId } = req.params;
+
+            const notes = await AdminNotesService.getNotesByReportId(reportId);
+            res.json(notes);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
-
-    AdminNotesModel.createNote({ id_report, admin_message }, (err, result) => {
-        if (err) {
-            console.error('Error creating note:', err);
-            return res.status(500).json({ message: 'Failed to create note' });
-        }
-
-        res.status(201).json({ message: 'Note added successfully', noteId: result.insertId });
-    });
 };
 
-exports.getNotesByReport = (req, res) => {
-    const reportId = req.params.reportId;
-
-    AdminNotesModel.getNotesByReportId(reportId, (err, results) => {
-        if (err) {
-            console.error('Error fetching notes:', err);
-            return res.status(500).json({ message: 'Failed to fetch notes' });
-        }
-
-        res.status(200).json(results);
-    });
-};
+module.exports = AdminNotesController;

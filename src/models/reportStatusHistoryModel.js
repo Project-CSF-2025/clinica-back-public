@@ -1,16 +1,19 @@
 const db = require('../config/database');
 
 const ReportStatusHistoryModel = {
-    addStatusChange: (statusChangeData, callback) => {
-        const query = `INSERT INTO report_status_history (id_report, old_status, new_status) 
-                       VALUES (?, ?, ?)`;
+    async addStatusChange(statusChangeData) {
+        const query = `INSERT INTO report_status_history (id_report, old_status, new_status) VALUES (?, ?, ?)`;
         const { id_report, old_status, new_status } = statusChangeData;
-        db.query(query, [id_report, old_status, new_status], callback);
+
+        const [result] = await db.promise().query(query, [id_report, old_status, new_status]);
+        return result;
     },
 
-    getStatusHistoryByReportId: (reportId, callback) => {
+    async getStatusHistoryByReportId(reportId) {
         const query = `SELECT * FROM report_status_history WHERE id_report = ? ORDER BY changed_at DESC`;
-        db.query(query, [reportId], callback);
+
+        const [results] = await db.promise().query(query, [reportId]);
+        return results;
     }
 };
 

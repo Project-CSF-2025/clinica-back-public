@@ -1,29 +1,53 @@
-const db = require('../config/database');
+const CreateUserDTO = require('../dtos/createUser.dto');
+const UserService = require('../services/userService');
 
-const getAllUsers = (req, res) => {
-    console.log('Request received at /api/users');
+const UserController = {
+    async createUser(req, res) {
+        try {
+            const userData = new CreateUserDTO(req.body);
 
-    // Check if the database connection is available
-    if (!db) {
-        console.error('Database connection is not available.');
-        return res.status(500).json({ error: 'Database connection failed.' });
+            const newUser = await UserService.createUser(userData);
+            res.status(201).json(newUser);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
+    async getUserById(req, res) {
+        try {
+            const userId = req.params.id;
+
+            const user = await UserService.getUserById(userId);
+            if (!user) return res.status(404).json({ error: 'User not found' });
+
+            res.json(user);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    },
+
+    async updateUser(req, res) {
+        try {
+            const userId = req.params.id;
+            const updateData = req.body;
+
+            const updatedUser = await UserService.updateUser(userId, updateData);
+            res.json(updatedUser);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
+    async deleteUser(req, res) {
+        try {
+            const userId = req.params.id;
+
+            await UserService.deleteUser(userId);
+            res.status(204).send();  // No Content
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
-
-    // Query the database
-    db.query('SELECT * FROM users', (err, results) => {
-        if (err) {
-            console.error('Error fetching users:', err.message);
-            return res.status(500).json({ error: 'Database query failed.' });
-        }
-
-        // Check if results are empty
-        if (results.length === 0) {
-            return res.status(404).json({ message: 'No users found.' });
-        }
-
-        // Return the results
-        res.status(200).json(results);
-    });
 };
 
-module.exports = { getAllUsers };
+module.exports = UserController;
