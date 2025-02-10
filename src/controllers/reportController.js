@@ -1,13 +1,11 @@
-const CreateReportDTO = require('../dtos/createReport.dto');
 const ReportService = require('../services/reportService');
 
 const ReportController = {
     async createReport(req, res) {
         try {
-            // Create and validate DTO
-            const reportData = new CreateReportDTO(req.body);
+            const reportData = req.body;
 
-            // Call the service to create the report
+            // Call the service to create a report
             const newReport = await ReportService.createReport(reportData);
             res.status(201).json(newReport);
         } catch (error) {
@@ -18,12 +16,11 @@ const ReportController = {
     async getReportByCode(req, res) {
         try {
             const { reportCode } = req.params;
-            const report = await ReportService.getReportByCode(reportCode);
 
-            if (!report) return res.status(404).json({ error: 'Report not found' });
+            const report = await ReportService.getReportByCode(reportCode);
             res.json(report);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(404).json({ error: error.message });
         }
     },
 
@@ -44,7 +41,7 @@ const ReportController = {
             const reportId = req.params.id;
 
             await ReportService.deleteReport(reportId);
-            res.status(204).send();  // No Content
+            res.status(204).send();
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
