@@ -4,8 +4,6 @@ const ReportController = {
     async createReport(req, res) {
         try {
             const reportData = req.body;
-
-            // Call the service to create a report
             const newReport = await ReportService.createReport(reportData);
             res.status(201).json(newReport);
         } catch (error) {
@@ -16,11 +14,11 @@ const ReportController = {
     async getReportByCode(req, res) {
         try {
             const { reportCode } = req.params;
-
             const report = await ReportService.getReportByCode(reportCode);
+            if (!report) return res.status(404).json({ error: 'Report not found' });
             res.json(report);
         } catch (error) {
-            res.status(404).json({ error: error.message });
+            res.status(500).json({ error: error.message });
         }
     },
 
@@ -28,7 +26,6 @@ const ReportController = {
         try {
             const reportId = req.params.id;
             const updateData = req.body;
-
             const updatedReport = await ReportService.updateReport(reportId, updateData);
             res.json(updatedReport);
         } catch (error) {
@@ -39,7 +36,6 @@ const ReportController = {
     async deleteReport(req, res) {
         try {
             const reportId = req.params.id;
-
             await ReportService.deleteReport(reportId);
             res.status(204).send();
         } catch (error) {

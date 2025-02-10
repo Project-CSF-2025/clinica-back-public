@@ -1,31 +1,22 @@
-const AttachmentsModel = require('../models/attachmentsModel');
+const AttachmentService = require('../services/attachmentsService');
 
-exports.createAttachment = (req, res) => {
-    const { id_report, attachment_type, file_path } = req.body;
+const AttachmentsController = {
+    async createAttachment(req, res) {
+        try {
+            const newAttachment = await AttachmentService.createAttachment(req.body);
+            res.status(201).json(newAttachment);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
 
-    if (!id_report || !attachment_type || !file_path) {
-        return res.status(400).json({ message: 'Required fields are missing' });
+    async getAttachmentsByReportId(req, res) {
+        try {
+            const { reportId } = req.params;
+            const attachments = await AttachmentService.getAttachmentsByReportId(reportId);
+            res.json(attachments);
+        } catch (error) {
+            res.status(404).json({ error: error.message });
+        }
     }
-
-    AttachmentsModel.createAttachment({ id_report, attachment_type, file_path }, (err, result) => {
-        if (err) {
-            console.error('Error uploading attachment:', err);
-            return res.status(500).json({ message: 'Failed to upload attachment' });
-        }
-
-        res.status(201).json({ message: 'Attachment uploaded successfully', attachmentId: result.insertId });
-    });
-};
-
-exports.getAttachmentsByReport = (req, res) => {
-    const reportId = req.params.reportId;
-
-    AttachmentsModel.getAttachmentsByReportId(reportId, (err, results) => {
-        if (err) {
-            console.error('Error fetching attachments:', err);
-            return res.status(500).json({ message: 'Failed to fetch attachments' });
-        }
-
-        res.status(200).json(results);
-    });
 };

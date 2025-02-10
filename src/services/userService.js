@@ -2,7 +2,6 @@ const UserModel = require('../models/userModel');
 
 const UserService = {
     async createUser(userData) {
-        // Perform business logic, e.g., checking for existing users by email (if needed)
         return await UserModel.createUser(userData);
     },
 
