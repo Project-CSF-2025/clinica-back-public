@@ -1,20 +1,18 @@
 const ReportService = require('../services/reportService');
 
 const ReportController = {
-    async createReport(req, res) {
+    async getAllReports(req, res) {
         try {
-            const reportData = req.body;
-            const newReport = await ReportService.createReport(reportData);
-            res.status(201).json(newReport);
+            const reports = await ReportService.getAllReports();
+            res.json(reports);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+            res.status(500).json({ error: error.message });
         }
     },
 
     async getReportByCode(req, res) {
         try {
-            const { reportCode } = req.params;
-            const report = await ReportService.getReportByCode(reportCode);
+            const report = await ReportService.getReportByCode(req.params.reportCode);
             if (!report) return res.status(404).json({ error: 'Report not found' });
             res.json(report);
         } catch (error) {
@@ -22,12 +20,25 @@ const ReportController = {
         }
     },
 
+    async createReport(req, res) {
+        try {
+            const newReport = await ReportService.createReport(req.body);
+            res.status(201).json(newReport);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
     async updateReport(req, res) {
         try {
-            const reportId = req.params.id;
-            const updateData = req.body;
-            const updatedReport = await ReportService.updateReport(reportId, updateData);
-            res.json(updatedReport);
+            const { id_report } = req.params;
+            const updatedReport = await ReportService.updateReport(id_report, req.body);
+
+            if (!updatedReport) {
+                return res.status(404).json({ error: "Report not found" });
+            }
+
+            res.json(updatedReport); // Return only the important fields
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
@@ -35,11 +46,12 @@ const ReportController = {
 
     async deleteReport(req, res) {
         try {
-            const reportId = req.params.id;
-            await ReportService.deleteReport(reportId);
-            res.status(204).send();
+            const { id_report } = req.params;
+            await ReportService.deleteReport(id_report);
+
+            res.json({ message: "Report deleted successfully" }); // Simple success message
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(404).json({ error: error.message });
         }
     }
 };

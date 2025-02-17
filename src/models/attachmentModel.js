@@ -1,6 +1,6 @@
 const db = require('../config/database');
 
-const AttachmentsModel = {
+const AttachmentModel = {
     async createAttachment(attachmentData) {
         const query = `INSERT INTO attachments (id_report, attachment_type, file_path) VALUES (?, ?, ?)`;
         const { id_report, attachment_type, file_path } = attachmentData;
@@ -32,4 +32,4 @@ const AttachmentsModel = {
     }
 };
 
-module.exports = AttachmentsModel;
+module.exports = AttachmentModel;

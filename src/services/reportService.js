@@ -16,12 +16,20 @@ const ReportService = {
         return report;
     },
 
-    async updateReport(reportId, updateData) {
-        return await ReportModel.updateReport(reportId, updateData);
+    async getAllReports() {
+        return await ReportModel.getAllReports();
     },
 
-    async deleteReport(reportId) {
-        return await ReportModel.deleteReport(reportId);
+    async updateReport(id_report, updateData) {
+        return await ReportModel.updateReport(id_report, updateData);
+    },
+
+    async deleteReport(id_report) {
+        const deletedReport = await ReportModel.deleteReport(id_report);
+        if (!deletedReport) {
+            throw new Error(`No report found with id_report: ${id_report}`);
+        }
+        return deletedReport; // Return the deleted report details
     }
 };
 

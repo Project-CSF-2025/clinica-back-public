@@ -1,33 +1,39 @@
 const UserService = require('../services/userService');
 
 const UserController = {
-    async createUser(req, res) {
+    async getAllUsers(req, res) {
         try {
-            const userData = req.body;
-            const newUser = await UserService.createUser(userData);
-            res.status(201).json(newUser);
-        } catch (error) {
-            res.status(400).json({ error: error.message });
-        }
-    },
-
-    async getUserById(req, res) {
-        try {
-            const userId = req.params.id;
-            const user = await UserService.getUserById(userId);
-            if (!user) return res.status(404).json({ error: 'User not found' });
-            res.json(user);
+            const response = await UserService.getAllUsers();
+            res.status(200).json(response);
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
     },
 
+    async getUserById(req, res) {
+        try {
+            const userId = req.params.id_user;
+            const response = await UserService.getUserById(userId);
+            res.status(200).json(response);
+        } catch (error) {
+            res.status(404).json({ error: error.message });
+        }
+    },
+
+    async createUser(req, res) {
+        try {
+            const response = await UserService.createUser(req.body);
+            res.status(201).json(response);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
+        }
+    },
+
     async updateUser(req, res) {
         try {
-            const userId = req.params.id;
-            const updateData = req.body;
-            const updatedUser = await UserService.updateUser(userId, updateData);
-            res.json(updatedUser);
+            const userId = req.params.id_user;
+            const response = await UserService.updateUser(userId, req.body);
+            res.status(200).json(response);
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
@@ -35,11 +41,11 @@ const UserController = {
 
     async deleteUser(req, res) {
         try {
-            const userId = req.params.id;
-            await UserService.deleteUser(userId);
-            res.status(204).send();
+            const userId = req.params.id_user;
+            const response = await UserService.deleteUser(userId);
+            res.status(200).json(response);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            res.status(404).json({ error: error.message });
         }
     }
 };

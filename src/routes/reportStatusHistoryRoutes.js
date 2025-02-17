@@ -1,11 +1,9 @@
 const express = require('express');
+const ReportStatusHistoryController = require('../controllers/reportStatusHistoryController');
+
 const router = express.Router();
-const reportStatusHistoryController = require('../controllers/reportStatusHistoryController');
 
-// POST: Add a new status history entry
-router.post('/', reportStatusHistoryController.addStatusHistory);
-
-// GET: Get status history for a specific report
-router.get('/:id_report', reportStatusHistoryController.getStatusHistory);
+router.post('/', ReportStatusHistoryController.addStatusChange);
+router.get('/:reportId', ReportStatusHistoryController.getStatusHistoryByReportId);
 
 module.exports = router;

@@ -17,19 +17,40 @@ const ReportModel = {
         return results[0] || null;
     },
 
-    async updateReport(reportId, updateData) {
-        const query = `UPDATE reports SET subject = ?, description = ?, status = ? WHERE id = ?`;
+    async updateReport(id_report, updateData) {
+        const updateQuery = `
+            UPDATE reports 
+            SET subject = ?, description = ?, status = ?, updated_at = NOW()
+            WHERE id_report = ?
+        `;
+
         const { subject, description, status } = updateData;
 
-        const [result] = await db.promise().query(query, [subject, description, status, reportId]);
-        return result;
+        await db.promise().query(updateQuery, [subject, description, status, id_report]);
+
+        // Fetch the updated record
+        const fetchQuery = `SELECT subject, description, status FROM reports WHERE id_report = ?`;
+        const [updatedRows] = await db.promise().query(fetchQuery, [id_report]);
+
+        return updatedRows[0] || null; // Return only the updated fields
     },
 
-    async deleteReport(reportId) {
-        const query = `DELETE FROM reports WHERE id = ?`;
+    async deleteReport(id_report) {
+        // First, retrieve the report details before deletion
+        const checkQuery = `SELECT subject, description, status FROM reports WHERE id_report = ?`;
+        const [rows] = await db.promise().query(checkQuery, [id_report]);
 
-        const [result] = await db.promise().query(query, [reportId]);
-        return result;
+        if (rows.length === 0) {
+            return null; // Report not found
+        }
+
+        const deletedReport = rows[0]; // Store the report data before deleting
+
+        // Proceed with deletion
+        const deleteQuery = `DELETE FROM reports WHERE id_report = ?`;
+        await db.promise().query(deleteQuery, [id_report]);
+
+        return deletedReport; // Return deleted report details instead of MySQL response
     }
 };
 
