@@ -3,7 +3,7 @@ const ReportModel = require('../models/reportModel');
 const ReportService = {
     async createReport(reportData) {
         if (!reportData.report_code) {
-            reportData.report_code = `REP${Math.floor(1000 + Math.random() * 9000)}`;
+            reportData.report_code = generateReportCode();
         }
         return await ReportModel.createReport(reportData);
     },
@@ -11,7 +11,7 @@ const ReportService = {
     async getReportByCode(reportCode) {
         const report = await ReportModel.getReportByCode(reportCode);
         if (!report) {
-            throw new Error('Report not found');
+            throw new Error("Report not found");
         }
         return report;
     },
@@ -29,8 +29,20 @@ const ReportService = {
         if (!deletedReport) {
             throw new Error(`No report found with id_report: ${id_report}`);
         }
-        return deletedReport; // Return the deleted report details
+        return deletedReport;
     }
 };
+
+function generateReportCode() {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const randomLetters = Array(3) 
+        .fill("")
+        .map(() => letters[Math.floor(Math.random() * letters.length)])
+        .join("");
+
+    const randomNumbers = Math.floor(1000 + Math.random() * 9000); 
+
+    return `${randomLetters}${randomNumbers}`; 
+}
 
 module.exports = ReportService;

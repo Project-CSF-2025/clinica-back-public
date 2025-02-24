@@ -1,26 +1,21 @@
 const mysql = require('mysql2');
-const dotenv = require('dotenv');
+require('dotenv').config();  
 
-// Load environment variables
-dotenv.config();
-
-// Create the database connection
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    connectTimeout: 10000 // Optional: Set timeout to 10 seconds
+    connectTimeout: 10000
 });
 
-// Connect and handle connection errors
 db.connect((err) => {
     if (err) {
-        console.error('Error connecting to the database:', err.message);
-        process.exit(1); // Stop the application if the connection fails
+        console.error('❌ Error connecting to the database:', err.message);
+        process.exit(1);
     } else {
-        console.log('Connected to the database successfully.');
+        console.log('✅ Connected to MySQL successfully.');
     }
 });
 

@@ -1,9 +1,8 @@
 const Joi = require('joi');
 
 const userSchema = Joi.object({
-    name: Joi.string().min(3).required(),
     email: Joi.string().email().required(),
-    role: Joi.string().valid('admin', 'staff', 'user').required(),
+    role: Joi.string().valid('admin', 'staff').required(),
 });
 
 class CreateUserDTO {

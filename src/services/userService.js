@@ -2,11 +2,40 @@ const UserModel = require('../models/userModel');
 
 const UserService = {
     async createUser(userData) {
-        const newUser = await UserModel.createUser(userData);
-        return {
-            message: "User created successfully",
-            user: newUser
-        };
+        try {
+            if (!userData.email) {
+                // If no email is provided, return the anonymous user
+                console.log("No email provided. Assigning anonymous user.");
+                const anonymousUser = await UserModel.getUserById(1); // Fetch user with id_user = 1
+                if (!anonymousUser) {
+                    throw new Error("Anonymous user does not exist. Check database setup.");
+                }
+                return {
+                    message: "Anonymous user assigned",
+                    user: anonymousUser
+                };
+            }
+
+            // If an email is provided, check if the user already exists
+            let user = await UserModel.getUserByEmail(userData.email);
+            if (!user) {
+                // Create new user if not found
+                user = await UserModel.createUser(userData);
+                return {
+                    message: "User created successfully",
+                    user
+                };
+            }
+
+            return {
+                message: "User already exists",
+                user
+            };
+
+        } catch (error) {
+            console.error("❌ Error in createUser:", error.message);
+            throw new Error(error.message);
+        }
     },
 
     async getUserById(userId) {
@@ -22,14 +51,8 @@ const UserService = {
 
     async getAllUsers() {
         const users = await UserModel.getAllUsers();
-        if (users.length === 0) {
-            return {
-                message: "No users found",
-                users: []
-            };
-        }
         return {
-            message: "Users retrieved successfully",
+            message: users.length ? "Users retrieved successfully" : "No users found",
             users
         };
     },
