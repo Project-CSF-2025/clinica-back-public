@@ -25,6 +25,18 @@ const UserModel = {
         }
     },
 
+    async getAllUsers() {  // ✅ Adding missing function
+        const query = `SELECT * FROM users`;
+
+        try {
+            const [results] = await db.promise().query(query);
+            return results;
+        } catch (error) {
+            console.error("❌ Error fetching all users:", error);
+            throw error;
+        }
+    },
+
     async getUserByEmail(email) {
         const query = `SELECT * FROM users WHERE email = ?`;
 

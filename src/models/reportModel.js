@@ -28,6 +28,17 @@ const ReportModel = {
         return { insertId: result.insertId, report_code: reportData.report_code };
     },
 
+    async getAllReports() {
+        try {
+            const query = `SELECT * FROM reports`;
+            const [results] = await db.promise().query(query);
+            return results;
+        } catch (error) {
+            console.error("❌ Error fetching reports:", error);
+            throw error; // Re-throw to catch in controller
+        }
+    },
+
     async getReportByCode(reportCode) {
         const query = `SELECT * FROM reports WHERE report_code = ?`;
         const [results] = await db.promise().query(query, [reportCode]);

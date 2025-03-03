@@ -22,7 +22,18 @@ const ReportController = {
 
     async createReport(req, res) {
         try {
-            const newReport = await ReportService.createReport(req.body);
+            // ✅ Extract uploaded files
+            const files = req.files || [];
+            const filePaths = files.map(file => file.path); // Save file paths
+
+            // ✅ Add file paths to request body
+            const reportData = {
+                ...req.body,
+                attachments: filePaths, // Store file paths in DB
+            };
+
+            // ✅ Call service with updated report data
+            const newReport = await ReportService.createReport(reportData);
             res.status(201).json(newReport);
         } catch (error) {
             res.status(400).json({ error: error.message });
@@ -38,7 +49,7 @@ const ReportController = {
                 return res.status(404).json({ error: "Report not found" });
             }
 
-            res.json(updatedReport); // Return only the important fields
+            res.json(updatedReport);
         } catch (error) {
             res.status(400).json({ error: error.message });
         }
@@ -49,7 +60,7 @@ const ReportController = {
             const { id_report } = req.params;
             await ReportService.deleteReport(id_report);
 
-            res.json({ message: "Report deleted successfully" }); // Simple success message
+            res.json({ message: "Report deleted successfully" });
         } catch (error) {
             res.status(404).json({ error: error.message });
         }

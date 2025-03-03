@@ -2,12 +2,19 @@ const db = require('../config/database');
 
 const AttachmentModel = {
     async createAttachment(attachmentData) {
-        const query = `INSERT INTO attachments (id_report, attachment_type, file_path) VALUES (?, ?, ?)`;
-        const { id_report, attachment_type, file_path } = attachmentData;
-
-        const [result] = await db.promise().query(query, [id_report, attachment_type, file_path]);
-        return result;
-    },
+        const query = `
+          INSERT INTO attachments (id_report, attachment_type, file_path)
+          VALUES (?, ?, ?)`;
+    
+        const values = [
+          attachmentData.id_report,
+          attachmentData.attachment_type,
+          attachmentData.file_path,
+        ];
+    
+        const [result] = await db.promise().query(query, values);
+        return { insertId: result.insertId, ...attachmentData };
+      },
 
     async getAttachmentsByReportId(reportId) {
         const query = `SELECT * FROM attachments WHERE id_report = ?`;
