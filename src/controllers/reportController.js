@@ -1,4 +1,5 @@
 const ReportService = require('../services/reportService');
+const ReportModel = require("../models/reportModel"); 
 
 const ReportController = {
     async getAllReports(req, res) {
@@ -10,13 +11,19 @@ const ReportController = {
         }
     },
 
-    async getReportByCode(req, res) {
+    async getReportByCode(req, res) {  // ✅ FIXED
         try {
-            const report = await ReportService.getReportByCode(req.params.reportCode);
-            if (!report) return res.status(404).json({ error: 'Report not found' });
+            const { report_code } = req.params;  // ✅ Extract report_code from URL
+            const report = await ReportModel.getReportByCode(report_code);
+
+            if (!report) {
+                return res.status(404).json({ error: "Report not found" });
+            }
+
             res.json(report);
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            console.error("❌ Error fetching report:", error);
+            res.status(500).json({ error: "Internal Server Error" });
         }
     },
 

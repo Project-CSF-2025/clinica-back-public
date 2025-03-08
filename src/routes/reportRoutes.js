@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.post('/', ReportController.createReport);
 router.get('/', ReportController.getAllReports);
-router.get('/:reportCode', ReportController.getReportByCode);
+router.get('/:report_code', ReportController.getReportByCode);
 router.post('/:id_report', ReportController.updateReport);
 router.delete('/:id_report', ReportController.deleteReport);
 

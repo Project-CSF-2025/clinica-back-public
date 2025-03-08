@@ -8,13 +8,9 @@ const ReportService = {
         return await ReportModel.createReport(reportData);
     },
 
-    async getReportByCode(reportCode) {
-        const report = await ReportModel.getReportByCode(reportCode);
-        if (!report) {
-            throw new Error("Report not found");
-        }
-        return report;
-    },
+    async getReportByCode(report_Code) {
+        return await ReportModel.getReportByCode(report_Code);
+    },       
 
     async getAllReports() {
         return await ReportModel.getAllReports();

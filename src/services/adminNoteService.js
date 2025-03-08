@@ -1,25 +1,21 @@
-const AdminNotesModel = require('../models/adminNotesModel');
+const AdminNoteModel = require('../models/adminNoteModel');
 
-const AdminNotesService = {
+const AdminNoteService = {
     async createNote(noteData) {
-        return await AdminNotesModel.createNote(noteData);
+        return await AdminNoteModel.createNote(noteData);
     },
 
     async getNotesByReportId(reportId) {
-        const notes = await AdminNotesModel.getNotesByReportId(reportId);
-        if (!notes.length) {
-            throw new Error('No admin notes found for this report');
-        }
-        return notes;
+        return await AdminNoteModel.getNotesByReportId(reportId);
     },
 
     async updateNote(noteId, updateData) {
-        return await AdminNotesModel.updateNote(noteId, updateData);
+        return await AdminNoteModel.updateNote(noteId, updateData);
     },
 
     async deleteNote(noteId) {
-        return await AdminNotesModel.deleteNote(noteId);
+        return await AdminNoteModel.deleteNote(noteId);
     }
 };
 
-module.exports = AdminNotesService;
+module.exports = AdminNoteService;

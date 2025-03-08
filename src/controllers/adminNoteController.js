@@ -1,4 +1,4 @@
-const AdminNoteService = require('../services/adminNoteService');
+const AdminNoteService = require('../services/adminNoteService'); // Ensure singular name
 
 const AdminNoteController = {
     async getNotesByReportId(req, res) {
@@ -9,6 +9,7 @@ const AdminNoteController = {
             }
             res.json(notes);
         } catch (error) {
+            console.error(error);
             res.status(500).json({ error: error.message });
         }
     },
@@ -18,6 +19,7 @@ const AdminNoteController = {
             const newNote = await AdminNoteService.createNote(req.body);
             res.status(201).json(newNote);
         } catch (error) {
+            console.error(error);
             res.status(400).json({ error: error.message });
         }
     },
@@ -27,6 +29,7 @@ const AdminNoteController = {
             const updatedNote = await AdminNoteService.updateNote(req.params.id, req.body);
             res.json(updatedNote);
         } catch (error) {
+            console.error(error);
             res.status(400).json({ error: error.message });
         }
     },
@@ -36,6 +39,7 @@ const AdminNoteController = {
             await AdminNoteService.deleteNote(req.params.id);
             res.status(204).send();
         } catch (error) {
+            console.error(error);
             res.status(500).json({ error: error.message });
         }
     }

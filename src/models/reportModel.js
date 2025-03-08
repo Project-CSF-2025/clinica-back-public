@@ -39,11 +39,16 @@ const ReportModel = {
         }
     },
 
-    async getReportByCode(reportCode) {
+    async getReportByCode(report_code) {
+        if (!report_code) {
+            throw new Error("❌ Report code is required");
+        }
+    
         const query = `SELECT * FROM reports WHERE report_code = ?`;
-        const [results] = await db.promise().query(query, [reportCode]);
+        const [results] = await db.promise().query(query, [report_code]);
+    
         return results[0] || null;
-    },
+    },         
 
     async updateReport(id_report, updateData) {
         const updateQuery = `
