@@ -71,6 +71,22 @@ const ReportController = {
         } catch (error) {
             res.status(404).json({ error: error.message });
         }
+    },
+
+    async toggleFlag(req, res) {
+        try {
+            const { id_report } = req.params;
+            const { is_flagged } = req.body;
+
+            if (is_flagged === undefined) {
+                return res.status(400).json({ error: "is_flagged value is required." });
+            }
+
+            const updatedReport = await ReportService.toggleFlag(id_report, is_flagged);
+            res.json(updatedReport);
+        } catch (error) {
+            res.status(500).json({ error: "Internal server error" });
+        }
     }
 };
 

@@ -16,17 +16,22 @@ const ReportService = {
         return await ReportModel.getAllReports();
     },
 
-    async updateReport(id_report, updateData) {
-        return await ReportModel.updateReport(id_report, updateData);
-    },
-
     async deleteReport(id_report) {
         const deletedReport = await ReportModel.deleteReport(id_report);
         if (!deletedReport) {
             throw new Error(`No report found with id_report: ${id_report}`);
         }
         return deletedReport;
+    },
+
+    async toggleFlag(id_report, is_flagged) {
+        return await ReportModel.toggleFlag(id_report, is_flagged);
+    },
+
+    async toggleFlag(id_report, is_flagged) {
+        return await ReportModel.toggleFlag(id_report, is_flagged);
     }
+    
 };
 
 function generateReportCode() {

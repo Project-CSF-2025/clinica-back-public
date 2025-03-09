@@ -10,5 +10,6 @@ router.get('/', ReportController.getAllReports);
 router.get('/:report_code', ReportController.getReportByCode);
 router.post('/:id_report', ReportController.updateReport);
 router.delete('/:id_report', ReportController.deleteReport);
+router.put("/toggle-flag/:id_report", ReportController.toggleFlag);
 
 module.exports = router;
