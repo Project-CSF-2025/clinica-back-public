@@ -47,8 +47,28 @@ const ReportModel = {
         const query = `SELECT * FROM reports WHERE report_code = ?`;
         const [results] = await db.promise().query(query, [report_code]);
     
-        return results[0] || null;
-    },         
+        if (!results.length) return null;
+    
+        // ✅ Return `null` for missing values (Frontend will handle them)
+        const report = results[0];
+    
+        return {
+            id_report: report.id_report,
+            report_code: report.report_code || null,
+            department: report.department || null,
+            profession: report.profession || null,
+            location: report.location || null,
+            subject: report.subject || null,
+            description: report.description || null,
+            is_consequent: report.is_consequent ?? null,
+            avoidable: report.avoidable ?? null,
+            consequence_type: report.consequence_type || null,
+            suggestions: report.suggestions || null,
+            status: report.status || "No leído",
+            created_at: report.created_at,
+            updated_at: report.updated_at,
+        };
+    },            
 
     async updateReport(id_report, updateData) {
         const updateQuery = `
