@@ -1,21 +1,18 @@
 const AdminNoteModel = require('../models/adminNoteModel');
 
 const AdminNoteService = {
+    async getAdminNoteByReportId(id_report) {
+        return await AdminNoteModel.getAdminNoteByReportId(id_report);
+    },
     async createNote(noteData) {
         return await AdminNoteModel.createNote(noteData);
     },
-
-    async getNotesByReportId(reportId) {
-        return await AdminNoteModel.getNotesByReportId(reportId);
-    },
-
     async updateNote(noteId, updateData) {
         return await AdminNoteModel.updateNote(noteId, updateData);
     },
-
     async deleteNote(noteId) {
         return await AdminNoteModel.deleteNote(noteId);
     }
 };
 
-module.exports = AdminNoteService;
+module.exports = AdminNoteService; // ✅ Ensure correct exports

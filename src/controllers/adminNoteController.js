@@ -1,16 +1,16 @@
-const AdminNoteService = require('../services/adminNoteService'); // Ensure singular name
+const AdminNoteService = require('../services/adminNoteService');
 
 const AdminNoteController = {
-    async getNotesByReportId(req, res) {
+    async getAdminNoteByReportId(req, res) {
         try {
-            const notes = await AdminNoteService.getNotesByReportId(req.params.reportId);
-            if (!notes.length) {
-                return res.status(404).json({ error: 'No notes found for this report' });
-            }
-            res.json(notes);
+            const { id_report } = req.params;
+            const note = await AdminNoteService.getAdminNoteByReportId(id_report);
+            if (!note) return res.status(404).json({ error: "No memo found" });
+
+            res.json(note);
         } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: error.message });
+            console.error("Error fetching admin note:", error);
+            res.status(500).json({ error: "Internal server error" });
         }
     },
 
@@ -26,13 +26,27 @@ const AdminNoteController = {
 
     async updateNote(req, res) {
         try {
-            const updatedNote = await AdminNoteService.updateNote(req.params.id, req.body);
+            const { id } = req.params;
+            const { admin_message } = req.body;
+    
+            console.log("📌 Updating memo ID:", id, "New message:", admin_message);
+    
+            if (!id || !admin_message) {
+                return res.status(400).json({ error: "Missing note ID or message" });
+            }
+    
+            const updatedNote = await AdminNoteService.updateNote(id, { admin_message });
+    
+            if (!updatedNote) {
+                return res.status(404).json({ error: "Memo not found" });
+            }
+    
             res.json(updatedNote);
         } catch (error) {
-            console.error(error);
-            res.status(400).json({ error: error.message });
+            console.error("❌ Error updating memo:", error);
+            res.status(500).json({ error: "Internal server error" });
         }
-    },
+    },    
 
     async deleteNote(req, res) {
         try {

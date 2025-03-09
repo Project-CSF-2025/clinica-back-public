@@ -3,7 +3,7 @@ const AdminNoteController = require('../controllers/adminNoteController'); // En
 
 const router = express.Router();
 
-router.get('/:reportId', AdminNoteController.getNotesByReportId);
+router.get('/:id_report', AdminNoteController.getAdminNoteByReportId);
 router.post('/', AdminNoteController.createNote);
 router.put('/:id', AdminNoteController.updateNote);
 router.delete('/:id', AdminNoteController.deleteNote);
