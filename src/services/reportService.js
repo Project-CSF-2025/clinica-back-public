@@ -1,4 +1,5 @@
 const ReportModel = require('../models/reportModel');
+const ReportStatusHistoryModel = require("../models/reportStatusHistoryModel");
 
 const ReportService = {
     async createReport(reportData) {
@@ -30,7 +31,28 @@ const ReportService = {
 
     async toggleFlag(id_report, is_flagged) {
         return await ReportModel.toggleFlag(id_report, is_flagged);
+    },
+
+    async updateReportStatus(report_code, newStatus) {
+        // Fetch current report details
+        const report = await ReportModel.getReportByCode(report_code);
+        if (!report) throw new Error("Report not found");
+    
+        const { id_report, status: oldStatus } = report;
+    
+        // Update the report status
+        await ReportModel.updateReportStatus(report_code, newStatus);
+    
+        // Log status change in history table
+        await ReportStatusHistoryModel.addStatusChange({
+            id_report,
+            old_status: oldStatus,
+            new_status: newStatus
+        });
+    
+        return { report_code, status: newStatus };
     }
+    
     
 };
 

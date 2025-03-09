@@ -87,6 +87,26 @@ const ReportController = {
         } catch (error) {
             res.status(500).json({ error: "Internal server error" });
         }
+    },
+    async updateReportStatus(req, res) {
+        try {
+            const { report_code } = req.params;
+            const { status: newStatus } = req.body;
+
+            if (!newStatus) {
+                return res.status(400).json({ error: "New status is required" });
+            }
+
+            const updatedReport = await ReportService.updateReportStatus(report_code, newStatus);
+
+            if (!updatedReport) {
+                return res.status(404).json({ error: "Report not found" });
+            }
+
+            res.json({ message: "Status updated successfully", report: updatedReport });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
 };
 

@@ -130,7 +130,14 @@ const ReportModel = {
             console.error("❌ Error toggling flag:", error);
             throw error;
         }
+    },
+
+    async updateReportStatus(report_code, newStatus) {
+        const query = `UPDATE reports SET status = ?, updated_at = NOW() WHERE report_code = ?`;
+        const [result] = await db.promise().query(query, [newStatus, report_code]);
+        return result.affectedRows > 0; // Return true if updated
     }
+    
 };
 
 module.exports = ReportModel;
