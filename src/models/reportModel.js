@@ -58,13 +58,16 @@ const ReportModel = {
 
     async getReportByCode(report_code) {
         if (!report_code) {
-            throw new Error("❌ Report code is required");
+          throw new Error("❌ Report code is required");
         }
-    
+      
         const query = `SELECT * FROM reports WHERE report_code = ?`;
         const [results] = await db.promise().query(query, [report_code]);
-    
-        if (!results.length) return null;
+      
+        if (!results.length) {
+          // Return `null` (or an empty array) to indicate “no data found”
+          return null;
+        }
     
         // ✅ Return `null` for missing values (Frontend will handle them)
         const report = results[0];
@@ -84,7 +87,7 @@ const ReportModel = {
             status: report.status || "No leído",
             created_at: report.created_at,
             updated_at: report.updated_at,
-            is_flagged: report.is_flagged ?? false, // ✅ Ensure flag is included
+            is_flagged: report.is_flagged ?? false, 
         };
     },
     

@@ -22,7 +22,7 @@ app.use(express.json());
 // Mount routes
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes);
-app.use('/api/status-history', reportStatusHistoryRoutes);
+app.use("/api/status-history", reportStatusHistoryRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/admin-notes', adminNotesRoutes);
 app.use('/api/attachments', attachmentsRoutes);

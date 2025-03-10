@@ -9,10 +9,9 @@ const ReportStatusHistoryModel = {
         return result;
     },
 
-    async getStatusHistoryByReportId(reportId) {
+    async getStatusHistoryByReportId(id_report) { // ✅ Use `id_report`
         const query = `SELECT * FROM report_status_history WHERE id_report = ? ORDER BY changed_at DESC`;
-
-        const [results] = await db.promise().query(query, [reportId]);
+        const [results] = await db.promise().query(query, [id_report]);
         return results;
     }
 };

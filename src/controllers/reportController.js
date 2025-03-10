@@ -11,21 +11,23 @@ const ReportController = {
         }
     },
 
-    async getReportByCode(req, res) {  // ✅ FIXED
+    async getReportByCode(req, res) {
         try {
-            const { report_code } = req.params;  // ✅ Extract report_code from URL
-            const report = await ReportModel.getReportByCode(report_code);
-
-            if (!report) {
-                return res.status(404).json({ error: "Report not found" });
-            }
-
-            res.json(report);
+          const { report_code } = req.params;
+          const report = await ReportService.getReportByCode(report_code);
+      
+          if (!report) {
+            // If the model returned null, send a 404 or an empty array
+            return res.status(404).json({ message: "Report not found" });
+          }
+      
+          // Otherwise, send the report data
+          return res.status(200).json(report);
         } catch (error) {
-            console.error("❌ Error fetching report:", error);
-            res.status(500).json({ error: "Internal Server Error" });
+          console.error("Error fetching report:", error);
+          return res.status(500).json({ error: error.message });
         }
-    },
+      },      
 
     async createReport(req, res) {
         try {

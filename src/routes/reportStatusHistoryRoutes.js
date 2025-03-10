@@ -4,6 +4,6 @@ const ReportStatusHistoryController = require('../controllers/reportStatusHistor
 const router = express.Router();
 
 router.post('/', ReportStatusHistoryController.addStatusChange);
-router.get('/:reportId', ReportStatusHistoryController.getStatusHistoryByReportId);
+router.get('/:id_report', ReportStatusHistoryController.getStatusHistoryByReportId);
 
 module.exports = router;

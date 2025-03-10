@@ -14,3 +14,4 @@ router.put("/toggle-flag/:id_report", ReportController.toggleFlag);
 router.put('/:report_code/status', ReportController.updateReportStatus);
 
 module.exports = router;
+

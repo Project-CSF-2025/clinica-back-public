@@ -13,11 +13,19 @@ const ReportStatusHistoryController = {
 
     async getStatusHistoryByReportId(req, res) {
         try {
-            const { reportId } = req.params;
-            const statusHistory = await ReportStatusHistoryService.getStatusHistoryByReportId(reportId);
+            const { id_report } = req.params;
+            console.log(`Fetching status history for report ID: ${id_report}`); // ✅ Debugging Log
+
+            const statusHistory = await ReportStatusHistoryService.getStatusHistoryByReportId(id_report);
+
+            if (!statusHistory.length) {
+                return res.status(404).json({ message: "No status history found for this report" });
+            }
+
             res.json(statusHistory);
         } catch (error) {
-            res.status(404).json({ error: error.message });
+            console.error("❌ Error fetching status history:", error);
+            res.status(500).json({ error: "Server error" });
         }
     }
 };
