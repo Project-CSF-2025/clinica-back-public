@@ -7,11 +7,8 @@ const MessageService = {
 
     async getMessagesByReportId(reportId) {
         const messages = await MessageModel.getMessagesByReportId(reportId);
-        if (!messages.length) {
-            throw new Error('No messages found for this report');
-        }
-        return messages;
-    },
+        return Array.isArray(messages) ? messages : []; // ✅ Always return an array
+    },    
 
     async updateMessage(messageId, updateData) {
         return await MessageModel.updateMessage(messageId, updateData);
