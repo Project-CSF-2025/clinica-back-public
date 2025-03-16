@@ -23,6 +23,17 @@ const AdminNoteModel = {
         }
     },
 
+    async getAllAdminNotes() {
+        try {
+            const query = "SELECT * FROM admin_notes WHERE is_deleted = FALSE"; // ✅ Exclude soft-deleted notes
+            const [rows] = await db.promise().query(query);
+            return rows;
+        } catch (error) {
+            console.error("❌ Database error in getAllAdminNotes:", error);
+            throw new Error("Database error while fetching all admin notes.");
+        }
+    },    
+
     async getAdminNoteByReportId(id_report) {
         try {
             const query = "SELECT * FROM admin_notes WHERE id_report = ?";
@@ -39,7 +50,7 @@ const AdminNoteModel = {
         try {
             const query = `
                 UPDATE admin_notes 
-                SET admin_message = ?, last_update_at = NOW()
+                SET admin_message = ?, last_update_at = NOW(), is_deleted = FALSE
                 WHERE id_note = ?`;
     
             const values = [updateData.admin_message, noteId];
@@ -64,18 +75,24 @@ const AdminNoteModel = {
 
     async deleteNote(noteId) {
         try {
-            // ✅ Fetch the note before deleting
-            const [deletedNote] = await db.promise().query(`SELECT * FROM Admin_Notes WHERE id_note = ?`, [noteId]);
-
-            // ✅ Proceed with deletion
-            await db.promise().query(`DELETE FROM Admin_Notes WHERE id_note = ?`, [noteId]);
-
-            return deletedNote.length ? deletedNote[0] : null;
+            const query = `UPDATE admin_notes SET is_deleted = TRUE WHERE id_note = ?`;
+            const [result] = await db.promise().query(query, [noteId]);
+    
+            if (result.affectedRows === 0) return null; // ✅ Ensure note exists
+    
+            // ✅ Return the updated note to confirm it's soft deleted
+            const [updatedNote] = await db.promise().query(
+                `SELECT * FROM admin_notes WHERE id_note = ?`,
+                [noteId]
+            );
+    
+            return updatedNote[0];
         } catch (error) {
-            console.error("❌ Database error in deleteNote:", error);
-            throw new Error("Database error while deleting note.");
+            console.error("❌ Database error in softDeleteNote:", error);
+            throw new Error("Database error while soft deleting note.");
         }
     }
+    
 };
 
 module.exports = AdminNoteModel;

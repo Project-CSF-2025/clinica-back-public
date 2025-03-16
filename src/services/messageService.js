@@ -7,7 +7,7 @@ const MessageService = {
 
     async getMessagesByReportId(reportId) {
         const messages = await MessageModel.getMessagesByReportId(reportId);
-        return Array.isArray(messages) ? messages : []; // ✅ Always return an array
+        return Array.isArray(messages) ? messages : [];
     },    
 
     async updateMessage(messageId, updateData) {

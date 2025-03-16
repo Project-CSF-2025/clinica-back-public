@@ -1,6 +1,17 @@
 const AdminNoteService = require('../services/adminNoteService');
 
 const AdminNoteController = {
+
+    async getAllAdminNotes(req, res) {
+        try {
+            const notes = await AdminNoteService.getAllAdminNotes();
+            res.json(notes);
+        } catch (error) {
+            console.error("❌ Error fetching all admin notes:", error);
+            res.status(500).json({ error: "Internal server error" });
+        }
+    },
+        
     async getAdminNoteByReportId(req, res) {
         try {
             const { id_report } = req.params;

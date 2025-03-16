@@ -3,6 +3,7 @@ const AdminNoteController = require('../controllers/adminNoteController'); // En
 
 const router = express.Router();
 
+router.get("/", AdminNoteController.getAllAdminNotes); 
 router.get('/:id_report', AdminNoteController.getAdminNoteByReportId);
 router.post('/', AdminNoteController.createNote);
 router.put('/:id', AdminNoteController.updateNote);

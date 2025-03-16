@@ -1,6 +1,9 @@
 const AdminNoteModel = require('../models/adminNoteModel');
 
 const AdminNoteService = {
+    async getAllAdminNotes() {
+        return await AdminNoteModel.getAllAdminNotes();
+    },    
     async getAdminNoteByReportId(id_report) {
         return await AdminNoteModel.getAdminNoteByReportId(id_report);
     },
