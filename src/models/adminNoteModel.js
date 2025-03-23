@@ -1,4 +1,4 @@
-const db = require('../config/database'); // ✅ Ensure correct database import
+const db = require('../config/database');
 
 const AdminNoteModel = {
     async createNote(noteData) {
@@ -25,7 +25,7 @@ const AdminNoteModel = {
 
     async getAllAdminNotes() {
         try {
-            const query = "SELECT * FROM admin_notes WHERE is_deleted = FALSE"; // ✅ Exclude soft-deleted notes
+            const query = "SELECT * FROM admin_notes WHERE is_deleted = FALSE"; // Exclude soft-deleted notes
             const [rows] = await db.promise().query(query);
             return rows;
         } catch (error) {
@@ -39,7 +39,7 @@ const AdminNoteModel = {
             const query = "SELECT * FROM admin_notes WHERE id_report = ?";
             const [rows] = await db.promise().query(query, [id_report]);
     
-            return rows.length > 0 ? rows[0] : null; // ✅ Ensure returning correct object
+            return rows.length > 0 ? rows[0] : null; 
         } catch (error) {
             console.error("❌ Error in getAdminNoteByReportId:", error);
             throw new Error("Database error while fetching admin note.");
@@ -78,7 +78,7 @@ const AdminNoteModel = {
             const query = `UPDATE admin_notes SET is_deleted = TRUE WHERE id_note = ?`;
             const [result] = await db.promise().query(query, [noteId]);
     
-            if (result.affectedRows === 0) return null; // ✅ Ensure note exists
+            if (result.affectedRows === 0) return null;
     
             // ✅ Return the updated note to confirm it's soft deleted
             const [updatedNote] = await db.promise().query(
