@@ -51,8 +51,20 @@ const ReportService = {
         });
     
         return { report_code, status: newStatus };
-    }
+    },
     
+    async getReportsForExport() {
+        const reports = await ReportModel.getAllReports();
+        return reports.map(report => ({
+            Código: report.report_code,
+            Departamento: report.department,
+            Profesión: report.profession,
+            Ubicación: report.location,
+            Asunto: report.subject,
+            Estado: report.status,
+            Fecha: new Date(report.created_at).toLocaleString('es-ES')
+        }));
+    }
     
 };
 

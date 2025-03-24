@@ -1,5 +1,5 @@
 const ReportService = require('../services/reportService');
-const ReportModel = require("../models/reportModel"); 
+const { Parser } = require('json2csv');
 
 const ReportController = {
     async getAllReports(req, res) {
@@ -16,12 +16,9 @@ const ReportController = {
           const { report_code } = req.params;
           const report = await ReportService.getReportByCode(report_code);
       
-          if (!report) {
-            // If the model returned null, send a 404 or an empty array
+          if (!report) {        
             return res.status(404).json({ message: "Report not found" });
           }
-      
-          // Otherwise, send the report data
           return res.status(200).json(report);
         } catch (error) {
           console.error("Error fetching report:", error);
@@ -31,17 +28,16 @@ const ReportController = {
 
     async createReport(req, res) {
         try {
-            // ✅ Extract uploaded files
             const files = req.files || [];
-            const filePaths = files.map(file => file.path); // Save file paths
+            const filePaths = files.map(file => file.path); 
 
-            // ✅ Add file paths to request body
+            // Add file paths to request body
             const reportData = {
                 ...req.body,
                 attachments: filePaths, // Store file paths in DB
             };
 
-            // ✅ Call service with updated report data
+            // Call service with updated report data
             const newReport = await ReportService.createReport(reportData);
             res.status(201).json(newReport);
         } catch (error) {
@@ -108,6 +104,34 @@ const ReportController = {
             res.json({ message: "Status updated successfully", report: updatedReport });
         } catch (error) {
             res.status(500).json({ error: error.message });
+        }
+    },
+
+    async exportCSV(req, res) {
+        try {
+            const data = await ReportService.getReportsForExport();
+    
+            // Explicit fields for consistent order
+            const fields = [
+                { label: 'Código', value: 'Código' },
+                { label: 'Departamento', value: 'Departamento' },
+                { label: 'Profesión', value: 'Profesión' },
+                { label: 'Ubicación', value: 'Ubicación' },
+                { label: 'Asunto', value: 'Asunto' },
+                { label: 'Estado', value: 'Estado' },
+                { label: 'Fecha', value: 'Fecha' }
+            ];
+    
+            const json2csvParser = new Parser({ fields, withBOM: true });
+            const csv = json2csvParser.parse(data);
+    
+            // Force UTF-8 encoding with BOM for Excel support
+            res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+            res.setHeader('Content-Disposition', 'attachment; filename=reportes_clinica.csv');
+            res.status(200).send('\uFEFF' + csv);
+        } catch (error) {
+            console.error("❌ Error exporting CSV:", error);
+            res.status(500).json({ error: "No se pudo generar el archivo CSV" });
         }
     }
 };
