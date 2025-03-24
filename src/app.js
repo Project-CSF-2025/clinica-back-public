@@ -7,6 +7,7 @@ const reportStatusHistoryRoutes = require('./routes/reportStatusHistoryRoutes');
 const messagesRoutes = require('./routes/messageRoutes');
 const adminNotesRoutes = require('./routes/adminNoteRoutes');
 const attachmentsRoutes = require('./routes/attachmentRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express(); // ✅ Initialize app before using middleware
 
@@ -26,5 +27,7 @@ app.use("/api/status-history", reportStatusHistoryRoutes);
 app.use('/api/messages', messagesRoutes);
 app.use('/api/admin-notes', adminNotesRoutes);
 app.use('/api/attachments', attachmentsRoutes);
+app.use('/api/admin', adminRoutes);
+
 
 module.exports = app;
