@@ -47,6 +47,29 @@ const UserModel = {
             console.error("❌ Error fetching user by email:", error);
             throw error;
         }
+    },
+
+    async findByReportCode(report_code) {
+        const query = `
+          SELECT u.email 
+          FROM users u
+          INNER JOIN reports r ON u.id_user = r.id_user
+          WHERE r.report_code = ?
+        `;
+        const [rows] = await db.promise().query(query, [report_code]);
+        return rows[0] || null;
+    },
+    
+    // Find user email by report ID
+    async findByReportId(id_report) {
+    const query = `
+        SELECT u.email 
+        FROM users u
+        INNER JOIN reports r ON u.id_user = r.id_user
+        WHERE r.id_report = ?
+    `;
+    const [rows] = await db.promise().query(query, [id_report]);
+    return rows[0] || null;
     }
 };
 
