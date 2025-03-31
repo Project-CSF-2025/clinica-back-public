@@ -90,6 +90,12 @@ const ReportModel = {
             is_flagged: report.is_flagged ?? false, 
         };
     },
+
+    async getReportById(id_report) {
+        const query = "SELECT * FROM reports WHERE id_report = ?";
+        const [results] = await db.promise().query(query, [id_report]);
+        return results[0] || null;
+    },    
     
     async updateReport(id_report, updateData) {
         const updateQuery = `

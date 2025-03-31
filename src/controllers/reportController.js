@@ -1,5 +1,7 @@
 const ReportService = require('../services/reportService');
 const { Parser } = require('json2csv');
+const EmailNotificationService = require('../services/emailNotificationService');
+const UserModel = require('../models/userModel');
 
 const ReportController = {
     async getAllReports(req, res) {
@@ -47,16 +49,25 @@ const ReportController = {
 
     async updateReport(req, res) {
         try {
-            const { id_report } = req.params;
-            const updatedReport = await ReportService.updateReport(id_report, req.body);
-
-            if (!updatedReport) {
-                return res.status(404).json({ error: "Report not found" });
-            }
-
-            res.json(updatedReport);
+          const { id_report } = req.params;
+      
+          const updatedReport = await ReportService.updateReport(id_report, req.body);
+      
+          if (!updatedReport) {
+            return res.status(404).json({ error: "Report not found" });
+          }
+      
+          const report_code = updatedReport.report_code;
+      
+          const user = await UserModel.findByReportCode(report_code);
+          if (user?.email) {
+            await EmailNotificationService.sendReportUpdateEmail(user.email, report_code);
+          }
+      
+          res.json(updatedReport);
         } catch (error) {
-            res.status(400).json({ error: error.message });
+          console.error("❌ Error updating report:", error);
+          res.status(400).json({ error: error.message });
         }
     },
 
@@ -86,24 +97,25 @@ const ReportController = {
             res.status(500).json({ error: "Internal server error" });
         }
     },
+
     async updateReportStatus(req, res) {
         try {
-            const { report_code } = req.params;
-            const { status: newStatus } = req.body;
-
-            if (!newStatus) {
-                return res.status(400).json({ error: "New status is required" });
-            }
-
-            const updatedReport = await ReportService.updateReportStatus(report_code, newStatus);
-
-            if (!updatedReport) {
-                return res.status(404).json({ error: "Report not found" });
-            }
-
-            res.json({ message: "Status updated successfully", report: updatedReport });
+          const { report_code } = req.params;
+          const { status: newStatus } = req.body;
+      
+          const updated = await ReportService.updateReportStatus(report_code, newStatus);
+          if (!updated) {
+            return res.status(404).json({ error: "Report not found" });
+          }
+      
+          const user = await UserModel.findByReportCode(report_code);
+          if (user?.email) {
+            await EmailNotificationService.sendReportStatusUpdate(user.email, report_code, newStatus);
+          }
+      
+          res.json({ message: "Status updated and user notified." });
         } catch (error) {
-            res.status(500).json({ error: error.message });
+          res.status(500).json({ error: error.message });
         }
     },
 
