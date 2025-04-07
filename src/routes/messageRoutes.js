@@ -7,5 +7,6 @@ router.get('/:reportId', MessageController.getMessagesByReportId);
 router.post('/', MessageController.createMessage);
 router.put('/:id', MessageController.updateMessage);
 router.delete('/:id', MessageController.deleteMessage);
+router.put("/mark-read/:reportId", MessageController.markMessagesAsRead);
 
 module.exports = router;

@@ -65,7 +65,19 @@ const MessageController = {
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
+    },
+
+    async markMessagesAsRead(req, res) {
+      try {
+        const reportId = req.params.reportId;
+        await MessageService.markMessagesAsRead(reportId);
+        res.status(200).json({ message: "Messages marked as read" });
+      } catch (error) {
+        console.error("❌ Error marking messages as read:", error);
+        res.status(500).json({ error: error.message });
+      }
     }
+    
 };
 
 module.exports = MessageController;
