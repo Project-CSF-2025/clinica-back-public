@@ -30,9 +30,35 @@ const ReportModel = {
 
     async getAllReports() {
         try {
-            const query = `SELECT id_report, report_code, department, profession, location, subject, description, is_consequent, avoidable, consequence_type, suggestions, status, created_at, updated_at, is_flagged FROM reports`;
+            const query = `
+                SELECT 
+                  id_report, 
+                  report_code, 
+                  department, 
+                  profession, 
+                  location, 
+                  subject, 
+                  description, 
+                  is_consequent, 
+                  avoidable, 
+                  consequence_type, 
+                  suggestions, 
+                  status, 
+                  created_at, 
+                  updated_at, 
+                  is_flagged,
+                  (
+                    SELECT COUNT(*) 
+                    FROM messages 
+                    WHERE messages.id_report = reports.id_report 
+                      AND sender_type = 'user' 
+                      AND is_read = false
+                  ) AS unread_messages
+                FROM reports
+            `;
+    
             const [results] = await db.promise().query(query);
-            
+    
             return results.map(report => ({
                 id_report: report.id_report,
                 report_code: report.report_code || null,
@@ -48,13 +74,14 @@ const ReportModel = {
                 status: report.status || "No leído",
                 created_at: report.created_at,
                 updated_at: report.updated_at,
-                is_flagged: report.is_flagged ?? false, // ✅ Ensure flag is included
+                is_flagged: report.is_flagged ?? false,
+                unread_messages: report.unread_messages || 0
             }));
         } catch (error) {
             console.error("❌ Error fetching reports:", error);
             throw error;
         }
-    },    
+    },       
 
     async getReportByCode(report_code) {
         if (!report_code) {

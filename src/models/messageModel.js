@@ -25,7 +25,14 @@ const MessagesModel = {
 
         const [result] = await db.promise().query(query, [id_message]);
         return result.affectedRows > 0; // Return true if deleted, false if not found
+    },
+
+    async markMessagesAsRead(reportId) {
+        const query = `UPDATE messages SET is_read = true WHERE id_report = ? AND sender_type = 'user'`;
+        await db.promise().query(query, [reportId]);
     }
+      
+      
 };
 
 module.exports = MessagesModel;

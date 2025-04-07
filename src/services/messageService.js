@@ -16,7 +16,12 @@ const MessageService = {
 
     async deleteMessage(messageId) {
         return await MessageModel.deleteMessage(messageId);
+    },
+
+    async markMessagesAsRead(reportId) {
+        return await MessageModel.markMessagesAsRead(reportId);
     }
+      
 };
 
 module.exports = MessageService;
