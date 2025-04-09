@@ -76,7 +76,25 @@ const MessageController = {
         console.error("❌ Error marking messages as read:", error);
         res.status(500).json({ error: error.message });
       }
-    }
+    },
+
+    async markAdminMessagesAsRead(req, res) {
+      try {
+          const { report_code } = req.params;
+  
+          const ReportModel = require('../models/reportModel');
+          const report = await ReportModel.getReportByCode(report_code);
+  
+          if (!report) return res.status(404).json({ error: "Report not found" });
+  
+          await MessageService.markAdminMessagesAsRead(report.id_report);
+  
+          res.json({ message: "Admin messages marked as read" });
+      } catch (error) {
+          console.error("❌ Error marking admin messages as read:", error);
+          res.status(500).json({ error: error.message });
+      }
+  }    
     
 };
 
