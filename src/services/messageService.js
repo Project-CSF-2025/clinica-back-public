@@ -20,7 +20,12 @@ const MessageService = {
 
     async markMessagesAsRead(reportId) {
         return await MessageModel.markMessagesAsRead(reportId);
+    },
+
+    async markAdminMessagesAsRead(reportId) {
+        return await MessageModel.markAdminMessagesAsRead(reportId);
     }
+
       
 };
 

@@ -30,9 +30,17 @@ const MessagesModel = {
     async markMessagesAsRead(reportId) {
         const query = `UPDATE messages SET is_read = true WHERE id_report = ? AND sender_type = 'user'`;
         await db.promise().query(query, [reportId]);
+    },
+
+    async markAdminMessagesAsRead(id_report) {
+        const query = `
+            UPDATE messages 
+            SET is_read = true 
+            WHERE id_report = ? AND sender_type = 'admin'
+        `;
+        await db.promise().query(query, [id_report]);
     }
-      
-      
+        
 };
 
 module.exports = MessagesModel;
