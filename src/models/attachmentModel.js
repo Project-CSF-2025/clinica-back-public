@@ -1,64 +1,57 @@
-const db = require('../config/database');
+const { sql, pool } = require('../config/database');
 
 const AttachmentModel = {
   async createAttachment(attachmentData) {
     const query = `
       INSERT INTO attachments (id_report, attachment_type, file_path)
-      VALUES (?, ?, ?)`;
+      OUTPUT INSERTED.id_attachment
+      VALUES (@id_report, @attachment_type, @file_path)`;
 
-    const values = [
-      attachmentData.id_report,
-      attachmentData.attachment_type,
-      attachmentData.file_path,
-    ];
+    const request = pool.request();
+    request.input('id_report', sql.Int, attachmentData.id_report);
+    request.input('attachment_type', sql.VarChar, attachmentData.attachment_type);
+    request.input('file_path', sql.VarChar, attachmentData.file_path);
 
-    const result = await new Promise((resolve, reject) => {
-      db.query(query, values, (err, res) => {
-        if (err) return reject(err);
-        resolve(res);
-      });
-    });
+    const result = await request.query(query);
 
-    return { insertId: result.insertId, ...attachmentData };
+    return {
+      insertId: result.recordset[0].id_attachment,
+      ...attachmentData
+    };
   },
 
   async getAttachmentsByReportId(reportId) {
-    const query = `SELECT * FROM attachments WHERE id_report = ?`;
+    const query = `SELECT * FROM attachments WHERE id_report = @reportId`;
 
-    const results = await new Promise((resolve, reject) => {
-      db.query(query, [reportId], (err, rows) => {
-        if (err) return reject(err);
-        resolve(rows);
-      });
-    });
+    const request = pool.request();
+    request.input('reportId', sql.Int, reportId);
 
-    return results;
+    const result = await request.query(query);
+    return result.recordset;
   },
 
   async updateAttachment(attachmentId, updateData) {
-    const query = `UPDATE attachments SET file_path = ?, attachment_type = ? WHERE id = ?`;
-    const { file_path, attachment_type } = updateData;
+    const query = `
+      UPDATE attachments 
+      SET file_path = @file_path, attachment_type = @attachment_type 
+      WHERE id_attachment = @attachmentId`;
 
-    const result = await new Promise((resolve, reject) => {
-      db.query(query, [file_path, attachment_type, attachmentId], (err, res) => {
-        if (err) return reject(err);
-        resolve(res);
-      });
-    });
+    const request = pool.request();
+    request.input('file_path', sql.VarChar, updateData.file_path);
+    request.input('attachment_type', sql.VarChar, updateData.attachment_type);
+    request.input('attachmentId', sql.Int, attachmentId);
 
+    const result = await request.query(query);
     return result;
   },
 
   async deleteAttachment(attachmentId) {
-    const query = `DELETE FROM attachments WHERE id = ?`;
+    const query = `DELETE FROM attachments WHERE id_attachment = @attachmentId`;
 
-    const result = await new Promise((resolve, reject) => {
-      db.query(query, [attachmentId], (err, res) => {
-        if (err) return reject(err);
-        resolve(res);
-      });
-    });
+    const request = pool.request();
+    request.input('attachmentId', sql.Int, attachmentId);
 
+    const result = await request.query(query);
     return result;
   }
 };

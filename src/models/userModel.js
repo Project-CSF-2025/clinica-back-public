@@ -1,4 +1,4 @@
-const db = require('../config/database');
+const { sql, pool } = require('../config/database');
 
 const UserModel = {
   async createUser(userData) {
@@ -14,15 +14,16 @@ const UserModel = {
         return existingUser;
       }
 
-      const query = `INSERT INTO users (email) VALUES (?)`;
-      const result = await new Promise((resolve, reject) => {
-        db.query(query, [email], (err, res) => {
-          if (err) return reject(err);
-          resolve(res);
-        });
-      });
+      const query = `
+        INSERT INTO users (email, created_at)
+        OUTPUT INSERTED.id_user
+        VALUES (@email, GETDATE())`;
 
-      return { id_user: result.insertId, email };
+      const request = pool.request();
+      request.input('email', sql.VarChar, email);
+
+      const result = await request.query(query);
+      return { id_user: result.recordset[0].id_user, email };
     } catch (error) {
       console.error("❌ Error creating user:", error);
       throw error;
@@ -33,14 +34,8 @@ const UserModel = {
     const query = `SELECT * FROM users`;
 
     try {
-      const results = await new Promise((resolve, reject) => {
-        db.query(query, (err, rows) => {
-          if (err) return reject(err);
-          resolve(rows);
-        });
-      });
-
-      return results;
+      const result = await pool.request().query(query);
+      return result.recordset;
     } catch (error) {
       console.error("❌ Error fetching all users:", error);
       throw error;
@@ -48,17 +43,14 @@ const UserModel = {
   },
 
   async getUserByEmail(email) {
-    const query = `SELECT * FROM users WHERE email = ?`;
+    const query = `SELECT * FROM users WHERE email = @email`;
 
     try {
-      const results = await new Promise((resolve, reject) => {
-        db.query(query, [email], (err, rows) => {
-          if (err) return reject(err);
-          resolve(rows);
-        });
-      });
+      const request = pool.request();
+      request.input('email', sql.VarChar, email);
 
-      return results.length ? results[0] : null;
+      const result = await request.query(query);
+      return result.recordset.length ? result.recordset[0] : null;
     } catch (error) {
       console.error("❌ Error fetching user by email:", error);
       throw error;
@@ -67,38 +59,32 @@ const UserModel = {
 
   async findByReportCode(report_code) {
     const query = `
-      SELECT u.email 
+      SELECT u.email
       FROM users u
       INNER JOIN reports r ON u.id_user = r.id_user
-      WHERE r.report_code = ?
+      WHERE r.report_code = @report_code
     `;
 
-    const rows = await new Promise((resolve, reject) => {
-      db.query(query, [report_code], (err, res) => {
-        if (err) return reject(err);
-        resolve(res);
-      });
-    });
+    const request = pool.request();
+    request.input('report_code', sql.VarChar, report_code);
 
-    return rows[0] || null;
+    const result = await request.query(query);
+    return result.recordset[0] || null;
   },
 
   async findByReportId(id_report) {
     const query = `
-      SELECT u.email 
+      SELECT u.email
       FROM users u
       INNER JOIN reports r ON u.id_user = r.id_user
-      WHERE r.id_report = ?
+      WHERE r.id_report = @id_report
     `;
 
-    const rows = await new Promise((resolve, reject) => {
-      db.query(query, [id_report], (err, res) => {
-        if (err) return reject(err);
-        resolve(res);
-      });
-    });
+    const request = pool.request();
+    request.input('id_report', sql.Int, id_report);
 
-    return rows[0] || null;
+    const result = await request.query(query);
+    return result.recordset[0] || null;
   }
 };
 

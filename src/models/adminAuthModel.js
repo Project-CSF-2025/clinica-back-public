@@ -1,34 +1,32 @@
-const db = require('../config/database');
+const { sql, pool } = require('../config/database');
 
 const AdminAuthModel = {
   async findByEmail(email) {
-    const query = `SELECT * FROM admins WHERE email = ?`;
-    return new Promise((resolve, reject) => {
-      db.query(query, [email], (err, results) => {
-        if (err) return reject(err);
-        resolve(results[0] || null);
-      });
-    });
+    const query = `SELECT * FROM admins WHERE email = @Email`;
+    const request = pool.request();
+    request.input('Email', sql.VarChar, email);
+
+    const result = await request.query(query);
+    return result.recordset[0] || null;
   },
 
   async findByResetToken(token) {
-    const query = `SELECT * FROM admins WHERE reset_token = ? AND reset_token_expiry > NOW()`;
-    return new Promise((resolve, reject) => {
-      db.query(query, [token], (err, results) => {
-        if (err) return reject(err);
-        resolve(results[0] || null);
-      });
-    });
+    const query = `SELECT * FROM admins WHERE reset_token = @Token AND reset_token_expiry > GETDATE()`;
+    const request = pool.request();
+    request.input('Token', sql.VarChar, token);
+
+    const result = await request.query(query);
+    return result.recordset[0] || null;
   },
 
   async saveResetToken(email, token, expiry) {
-    const query = `UPDATE admins SET reset_token = ?, reset_token_expiry = ? WHERE email = ?`;
-    return new Promise((resolve, reject) => {
-      db.query(query, [token, expiry, email], (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
+    const query = `UPDATE admins SET reset_token = @Token, reset_token_expiry = @Expiry WHERE email = @Email`;
+    const request = pool.request();
+    request.input('Token', sql.VarChar, token);
+    request.input('Expiry', sql.DateTime, expiry);
+    request.input('Email', sql.VarChar, email);
+
+    await request.query(query);
   },
 
   async updatePassword(id_admin, hashedPassword) {
@@ -37,15 +35,14 @@ const AdminAuthModel = {
 
     const query = `
       UPDATE admins
-      SET password_hash = ?, reset_token = NULL, reset_token_expiry = NULL
-      WHERE id_admin = ?
+      SET password_hash = @Password, reset_token = NULL, reset_token_expiry = NULL
+      WHERE id_admin = @AdminId
     `;
-    return new Promise((resolve, reject) => {
-      db.query(query, [hashedPassword, id_admin], (err) => {
-        if (err) return reject(err);
-        resolve();
-      });
-    });
+    const request = pool.request();
+    request.input('Password', sql.VarChar, hashedPassword);
+    request.input('AdminId', sql.Int, id_admin);
+
+    await request.query(query);
   }
 };
 
