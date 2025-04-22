@@ -11,7 +11,7 @@ const reportSchema = Joi.object({
     avoidable: Joi.string().valid('yes', 'no').default('no'), 
     consequenceType: Joi.string().allow(null, ''), 
     suggestions: Joi.string().allow(null, ''),
-    status: Joi.string().default('No leído'),
+    status: Joi.string().default('NO LEIDO'),
 });
 
 class CreateReportDTO {

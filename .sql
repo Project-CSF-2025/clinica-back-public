@@ -114,7 +114,7 @@ VALUES (
     'Broken Equipment',        
     'The ECG machine is not functioning properly.', 
     'Consider replacing the machine',              
-    'No leído'                
+    'NO LEIDO'                
 );
 
 -- Insert a test message

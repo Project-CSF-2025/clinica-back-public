@@ -30,7 +30,7 @@ const ReportModel = {
     request.input('avoidable', sql.VarChar, reportData.avoidable);
     request.input('consequence_type', sql.Text, reportData.consequenceType);
     request.input('suggestions', sql.Text, reportData.suggestions);
-    request.input('status', sql.VarChar, reportData.status || 'No leído');
+    request.input('status', sql.VarChar, reportData.status || 'NO LEIDO');
 
     const result = await request.query(query);
     return { insertId: result.recordset[0].id_report, report_code: reportData.report_code };
