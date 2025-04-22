@@ -1,42 +1,66 @@
 const db = require('../config/database');
 
 const AttachmentModel = {
-    async createAttachment(attachmentData) {
-        const query = `
-          INSERT INTO attachments (id_report, attachment_type, file_path)
-          VALUES (?, ?, ?)`;
-    
-        const values = [
-          attachmentData.id_report,
-          attachmentData.attachment_type,
-          attachmentData.file_path,
-        ];
-    
-        const [result] = await db.promise().query(query, values);
-        return { insertId: result.insertId, ...attachmentData };
-      },
+  async createAttachment(attachmentData) {
+    const query = `
+      INSERT INTO attachments (id_report, attachment_type, file_path)
+      VALUES (?, ?, ?)`;
 
-    async getAttachmentsByReportId(reportId) {
-        const query = `SELECT * FROM attachments WHERE id_report = ?`;
+    const values = [
+      attachmentData.id_report,
+      attachmentData.attachment_type,
+      attachmentData.file_path,
+    ];
 
-        const [results] = await db.promise().query(query, [reportId]);
-        return results;
-    },
+    const result = await new Promise((resolve, reject) => {
+      db.query(query, values, (err, res) => {
+        if (err) return reject(err);
+        resolve(res);
+      });
+    });
 
-    async updateAttachment(attachmentId, updateData) {
-        const query = `UPDATE attachments SET file_path = ?, attachment_type = ? WHERE id = ?`;
-        const { file_path, attachment_type } = updateData;
+    return { insertId: result.insertId, ...attachmentData };
+  },
 
-        const [result] = await db.promise().query(query, [file_path, attachment_type, attachmentId]);
-        return result;
-    },
+  async getAttachmentsByReportId(reportId) {
+    const query = `SELECT * FROM attachments WHERE id_report = ?`;
 
-    async deleteAttachment(attachmentId) {
-        const query = `DELETE FROM attachments WHERE id = ?`;
+    const results = await new Promise((resolve, reject) => {
+      db.query(query, [reportId], (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows);
+      });
+    });
 
-        const [result] = await db.promise().query(query, [attachmentId]);
-        return result;
-    }
+    return results;
+  },
+
+  async updateAttachment(attachmentId, updateData) {
+    const query = `UPDATE attachments SET file_path = ?, attachment_type = ? WHERE id = ?`;
+    const { file_path, attachment_type } = updateData;
+
+    const result = await new Promise((resolve, reject) => {
+      db.query(query, [file_path, attachment_type, attachmentId], (err, res) => {
+        if (err) return reject(err);
+        resolve(res);
+      });
+    });
+
+    return result;
+  },
+
+  async deleteAttachment(attachmentId) {
+    const query = `DELETE FROM attachments WHERE id = ?`;
+
+    const result = await new Promise((resolve, reject) => {
+      db.query(query, [attachmentId], (err, res) => {
+        if (err) return reject(err);
+        resolve(res);
+      });
+    });
+
+    return result;
+  }
 };
 
 module.exports = AttachmentModel;
