@@ -1,8 +1,9 @@
-const { sql, pool } = require('../config/database');
+const { sql, pool, poolConnect } = require('../config/database');
 
 const AdminNoteModel = {
   async createNote(noteData) {
     try {
+      await poolConnect;
       const insertQuery = `
         INSERT INTO admin_notes (id_report, admin_message, created_at, last_update_at) 
         OUTPUT INSERTED.*
@@ -24,6 +25,7 @@ const AdminNoteModel = {
 
   async getAllAdminNotes() {
     try {
+      await poolConnect;
       const query = "SELECT * FROM admin_notes WHERE is_deleted = 0";
       const result = await pool.request().query(query);
       return result.recordset;
@@ -35,6 +37,7 @@ const AdminNoteModel = {
 
   async getAdminNoteByReportId(id_report) {
     try {
+      await poolConnect;
       const query = "SELECT * FROM admin_notes WHERE id_report = @id_report";
       const request = pool.request();
       request.input('id_report', sql.Int, id_report);
@@ -49,6 +52,7 @@ const AdminNoteModel = {
 
   async updateNote(noteId, updateData) {
     try {
+      await poolConnect;
       const query = `
         UPDATE admin_notes 
         SET admin_message = @admin_message, last_update_at = GETDATE(), is_deleted = 0
@@ -59,7 +63,6 @@ const AdminNoteModel = {
       request.input('noteId', sql.Int, noteId);
 
       const result = await request.query(query);
-
       if (result.rowsAffected[0] === 0) return null;
 
       const fetchResult = await pool.request()
@@ -75,6 +78,7 @@ const AdminNoteModel = {
 
   async deleteNote(noteId) {
     try {
+      await poolConnect;
       const query = `UPDATE admin_notes SET is_deleted = 1 WHERE id_note = @noteId`;
       const request = pool.request();
       request.input('noteId', sql.Int, noteId);

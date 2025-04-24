@@ -1,4 +1,4 @@
-const { sql, pool } = require('../config/database');
+const { sql, pool, poolConnect } = require('../config/database');
 
 const UserModel = {
   async createUser(userData) {
@@ -9,6 +9,7 @@ const UserModel = {
     }
 
     try {
+      await poolConnect;
       const existingUser = await this.getUserByEmail(email);
       if (existingUser) {
         return existingUser;
@@ -34,6 +35,7 @@ const UserModel = {
     const query = `SELECT * FROM users`;
 
     try {
+      await poolConnect;
       const result = await pool.request().query(query);
       return result.recordset;
     } catch (error) {
@@ -46,6 +48,7 @@ const UserModel = {
     const query = `SELECT * FROM users WHERE email = @email`;
 
     try {
+      await poolConnect;
       const request = pool.request();
       request.input('email', sql.VarChar, email);
 
@@ -65,11 +68,17 @@ const UserModel = {
       WHERE r.report_code = @report_code
     `;
 
-    const request = pool.request();
-    request.input('report_code', sql.VarChar, report_code);
+    try {
+      await poolConnect;
+      const request = pool.request();
+      request.input('report_code', sql.VarChar, report_code);
 
-    const result = await request.query(query);
-    return result.recordset[0] || null;
+      const result = await request.query(query);
+      return result.recordset[0] || null;
+    } catch (error) {
+      console.error("❌ Error fetching user by report_code:", error);
+      throw error;
+    }
   },
 
   async findByReportId(id_report) {
@@ -80,11 +89,17 @@ const UserModel = {
       WHERE r.id_report = @id_report
     `;
 
-    const request = pool.request();
-    request.input('id_report', sql.Int, id_report);
+    try {
+      await poolConnect;
+      const request = pool.request();
+      request.input('id_report', sql.Int, id_report);
 
-    const result = await request.query(query);
-    return result.recordset[0] || null;
+      const result = await request.query(query);
+      return result.recordset[0] || null;
+    } catch (error) {
+      console.error("❌ Error fetching user by report_id:", error);
+      throw error;
+    }
   }
 };
 
