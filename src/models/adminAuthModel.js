@@ -31,10 +31,6 @@ const AdminAuthModel = {
     const now = new Date();
     const expiry = new Date(admin.reset_token_expiry);
   
-    console.log("✅ Admin found:", admin.email);
-    console.log("⏳ DB expiry:", expiry);
-    console.log("🕒 JS current time:", now);
-  
     // ✅ Check and clear if token is expired
     if (now > expiry) {
       console.warn("⛔ Token expired. Cleaning it from DB...");

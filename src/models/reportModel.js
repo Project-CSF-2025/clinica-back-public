@@ -3,38 +3,41 @@ const { sql, pool } = require('../config/database');
 const ReportModel = {
   async createReport(reportData) {
     const userId = reportData.id_user || 1;
-
+    const isConsequent = reportData.isConsequent === 'si' ? 1 : 0;
+    const avoidable = reportData.avoidable === 'si' ? 1 : 0;
+  
     const query = `
       INSERT INTO reports (
         id_user, report_code, department, profession, location, subject,
         description, is_consequent, avoidable, consequence_type,
-        suggestions, status, created_at, updated_at
+        suggestions, status, created_at, updated_at, date_time
       )
       OUTPUT INSERTED.id_report
       VALUES (
         @id_user, @report_code, @department, @profession, @location, @subject,
         @description, @is_consequent, @avoidable, @consequence_type,
-        @suggestions, @status, GETDATE(), GETDATE()
+        @suggestions, @status, GETDATE(), GETDATE(), @date_time
       )
     `;
-
+  
     const request = pool.request();
     request.input('id_user', sql.Int, userId);
     request.input('report_code', sql.VarChar, reportData.report_code);
     request.input('department', sql.VarChar, reportData.department);
     request.input('profession', sql.VarChar, reportData.profession);
     request.input('location', sql.VarChar, reportData.location);
+    request.input('date_time', sql.DateTime, reportData.date_time);
     request.input('subject', sql.VarChar, reportData.subject);
     request.input('description', sql.Text, reportData.description);
-    request.input('is_consequent', sql.VarChar, reportData.isConsequent);
-    request.input('avoidable', sql.VarChar, reportData.avoidable);
+    request.input('is_consequent', sql.Bit, isConsequent); // ✅ FIXED
+    request.input('avoidable', sql.Bit, avoidable);         // ✅ FIXED
     request.input('consequence_type', sql.Text, reportData.consequenceType);
     request.input('suggestions', sql.Text, reportData.suggestions);
     request.input('status', sql.VarChar, reportData.status || 'NO LEIDO');
-
+  
     const result = await request.query(query);
     return { insertId: result.recordset[0].id_report, report_code: reportData.report_code };
-  },
+  },  
 
   async getAllReports() {
     const query = `
@@ -83,38 +86,6 @@ const ReportModel = {
       .query(query);
 
     return result.recordset[0] || null;
-  },
-
-  async updateReport(id_report, updateData) {
-    const query = `
-      UPDATE reports 
-      SET 
-        subject = @subject,
-        description = @description,
-        status = @status,
-        profession = @profession,
-        is_consequent = @is_consequent,
-        avoidable = @avoidable,
-        consequence_type = @consequence_type,
-        suggestions = @suggestions,
-        updated_at = GETDATE()
-      WHERE id_report = @id_report
-    `;
-
-    const request = pool.request();
-    request.input('subject', sql.VarChar, updateData.subject);
-    request.input('description', sql.Text, updateData.description);
-    request.input('status', sql.VarChar, updateData.status);
-    request.input('profession', sql.VarChar, updateData.profession);
-    request.input('is_consequent', sql.VarChar, updateData.isConsequent);
-    request.input('avoidable', sql.VarChar, updateData.avoidable);
-    request.input('consequence_type', sql.Text, updateData.consequenceType);
-    request.input('suggestions', sql.Text, updateData.suggestions);
-    request.input('id_report', sql.Int, id_report);
-
-    await request.query(query);
-
-    return await this.getReportById(id_report);
   },
 
   async toggleFlag(id_report, is_flagged) {
