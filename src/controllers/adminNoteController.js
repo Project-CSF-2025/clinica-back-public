@@ -67,7 +67,19 @@ const AdminNoteController = {
             console.error(error);
             res.status(500).json({ error: error.message });
         }
-    }
+    },
+
+    async softDeleteNote(req, res) {
+        try {
+          const { id } = req.params;
+          const result = await AdminNoteService.softDeleteNote(id);
+          res.status(200).json(result);
+        } catch (error) {
+          console.error("❌ Error soft-deleting note:", error);
+          res.status(500).json({ error: "Failed to soft delete" });
+        }
+    }  
+      
 };
 
 module.exports = AdminNoteController;

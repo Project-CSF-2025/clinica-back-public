@@ -19,14 +19,7 @@ app.use((req, res, next) => {
 
 app.use(cors());
 
-app.use(express.json({
-    verify: (req, res, buf) => {
-        const body = buf.toString();
-        if (body && body.trim() === "null") {
-        throw new Error("Invalid JSON: null body");
-        }
-    }
-    }));
+app.use(express.json());
   
 
 // Mount routes
