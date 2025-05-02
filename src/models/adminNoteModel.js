@@ -72,26 +72,31 @@ const AdminNoteModel = {
       throw new Error("Database error while updating memo.");
     }
   },
-
-  async deleteNote(noteId) {
+  
+  async softDeleteNote(noteId) {
     try {
-      const query = `UPDATE admin_notes SET is_deleted = 1 WHERE id_note = @noteId`;
+      const query = `
+        UPDATE admin_notes 
+        SET is_deleted = 1, last_update_at = GETDATE()
+        WHERE id_note = @noteId`;
+  
       const request = pool.request();
       request.input('noteId', sql.Int, noteId);
-
-      const result = await request.query(query);
-      if (result.rowsAffected[0] === 0) return null;
-
-      const updatedNote = await pool.request()
+  
+      await request.query(query);
+  
+      // Optional: return the updated note
+      const fetchResult = await pool.request()
         .input('noteId', sql.Int, noteId)
         .query("SELECT * FROM admin_notes WHERE id_note = @noteId");
-
-      return updatedNote.recordset[0];
+  
+      return fetchResult.recordset[0];
     } catch (error) {
-      console.error("❌ Database error in softDeleteNote:", error);
+      console.error("❌ Error in softDeleteNote:", error);
       throw new Error("Database error while soft deleting note.");
     }
-  }
+  }  
+
 };
 
 module.exports = AdminNoteModel;

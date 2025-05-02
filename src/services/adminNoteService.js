@@ -13,9 +13,10 @@ const AdminNoteService = {
     async updateNote(noteId, updateData) {
         return await AdminNoteModel.updateNote(noteId, updateData);
     },
-    async deleteNote(noteId) {
-        return await AdminNoteModel.deleteNote(noteId);
+    async softDeleteNote(noteId) {
+        return await AdminNoteModel.softDeleteNote(noteId);
     }
+      
 };
 
 module.exports = AdminNoteService; 
