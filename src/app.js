@@ -1,6 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 
+const multer =require('multer');
+const upload = multer({ dest: 'public/uploads/' });
+
 const userRoutes = require('./routes/userRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const reportStatusHistoryRoutes = require('./routes/reportStatusHistoryRoutes');
@@ -31,5 +34,9 @@ app.use('/api/admin-notes', adminNotesRoutes);
 app.use('/api/attachments', attachmentsRoutes);
 app.use('/api/admin', adminRoutes);
 
+
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    res.json(req.file);
+});
 
 module.exports = app;
