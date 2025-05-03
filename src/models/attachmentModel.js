@@ -1,58 +1,37 @@
 const { sql, pool } = require('../config/database');
 
 const AttachmentModel = {
-  async createAttachment(attachmentData) {
-    const query = `
-      INSERT INTO attachments (id_report, attachment_type, file_path)
-      OUTPUT INSERTED.id_attachment
-      VALUES (@id_report, @attachment_type, @file_path)`;
+  async createAttachment({ id_report, attachment_type, file_path }) {
+    try {
+      const query = `
+        INSERT INTO Attachments (id_report, attachment_type, file_path)
+        OUTPUT INSERTED.*
+        VALUES (@id_report, @attachment_type, @file_path)
+      `;
+      const request = pool.request();
+      request.input('id_report', sql.Int, id_report);
+      request.input('attachment_type', sql.VarChar, attachment_type);
+      request.input('file_path', sql.VarChar, file_path);
 
-    const request = pool.request();
-    request.input('id_report', sql.Int, attachmentData.id_report);
-    request.input('attachment_type', sql.VarChar, attachmentData.attachment_type);
-    request.input('file_path', sql.VarChar, attachmentData.file_path);
-
-    const result = await request.query(query);
-
-    return {
-      insertId: result.recordset[0].id_attachment,
-      ...attachmentData
-    };
+      const result = await request.query(query);
+      return result.recordset[0];
+    } catch (error) {
+      console.error("❌ Error in createAttachment model:", error);
+      throw error;
+    }
   },
 
-  async getAttachmentsByReportId(reportId) {
-    const query = `SELECT * FROM attachments WHERE id_report = @reportId`;
-
-    const request = pool.request();
-    request.input('reportId', sql.Int, reportId);
-
-    const result = await request.query(query);
-    return result.recordset;
-  },
-
-  async updateAttachment(attachmentId, updateData) {
-    const query = `
-      UPDATE attachments 
-      SET file_path = @file_path, attachment_type = @attachment_type 
-      WHERE id_attachment = @attachmentId`;
-
-    const request = pool.request();
-    request.input('file_path', sql.VarChar, updateData.file_path);
-    request.input('attachment_type', sql.VarChar, updateData.attachment_type);
-    request.input('attachmentId', sql.Int, attachmentId);
-
-    const result = await request.query(query);
-    return result;
-  },
-
-  async deleteAttachment(attachmentId) {
-    const query = `DELETE FROM attachments WHERE id_attachment = @attachmentId`;
-
-    const request = pool.request();
-    request.input('attachmentId', sql.Int, attachmentId);
-
-    const result = await request.query(query);
-    return result;
+  async getAttachmentsByReportId(id_report) {
+    try {
+      const query = `SELECT * FROM Attachments WHERE id_report = @id_report`;
+      const request = pool.request();
+      request.input('id_report', sql.Int, id_report);
+      const result = await request.query(query);
+      return result.recordset;
+    } catch (error) {
+      console.error("❌ Error in getAttachmentsByReportId model:", error);
+      throw error;
+    }
   }
 };
 

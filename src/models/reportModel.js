@@ -2,19 +2,10 @@ const { sql, pool } = require('../config/database');
 
 const ReportModel = {
   async createReport(reportData) {
-    // 🔧 FIX: req.body is undefined in model layer
-    console.log("🧾 Incoming report data:", reportData);
-
     const userId = reportData.id_user || 1;
-
-    // 🔒 This was useful earlier, keeping for fallback safety (if needed again)
-    const normalizeBoolean = (value) =>
-      typeof value === 'string' && value.toLowerCase().startsWith('s'); // e.g., "si", "sí", etc.
-
-    // ✅ We now trust DTO passed correct booleans (true/false)
-    const isConsequent = reportData.isConsequent;
-    const avoidable = reportData.avoidable;
-
+    const isConsequent = reportData.isConsequent === 'si' ? 1 : 0;
+    const avoidable = reportData.avoidable === 'si' ? 1 : 0;
+  
     const query = `
       INSERT INTO reports (
         id_user, report_code, department, profession, location, subject,
@@ -28,7 +19,7 @@ const ReportModel = {
         @suggestions, @status, GETDATE(), GETDATE(), @date_time
       )
     `;
-
+  
     const request = pool.request();
     request.input('id_user', sql.Int, userId);
     request.input('report_code', sql.VarChar, reportData.report_code);
@@ -38,17 +29,15 @@ const ReportModel = {
     request.input('date_time', sql.DateTime, reportData.date_time);
     request.input('subject', sql.VarChar, reportData.subject);
     request.input('description', sql.Text, reportData.description);
-    request.input('is_consequent', sql.Bit, isConsequent);
-    request.input('avoidable', sql.Bit, avoidable);
+    request.input('is_consequent', sql.Bit, isConsequent); // ✅ FIXED
+    request.input('avoidable', sql.Bit, avoidable);         // ✅ FIXED
     request.input('consequence_type', sql.Text, reportData.consequenceType);
     request.input('suggestions', sql.Text, reportData.suggestions);
     request.input('status', sql.VarChar, reportData.status || 'NO LEIDO');
-
+  
     const result = await request.query(query);
-    console.log("📌 Mapped booleans:", { isConsequent, avoidable });
-
     return { insertId: result.recordset[0].id_report, report_code: reportData.report_code };
-  },
+  },  
 
   async getAllReports() {
     const query = `

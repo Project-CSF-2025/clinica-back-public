@@ -11,14 +11,6 @@ const AttachmentService = {
             throw new Error('No attachments found for this report');
         }
         return attachments;
-    },
-
-    async updateAttachment(attachmentId, updateData) {
-        return await AttachmentsModel.updateAttachment(attachmentId, updateData);
-    },
-
-    async deleteAttachment(attachmentId) {
-        return await AttachmentsModel.deleteAttachment(attachmentId);
     }
 };
 
