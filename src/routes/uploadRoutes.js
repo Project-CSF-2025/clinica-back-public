@@ -2,6 +2,8 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { sql, pool } = require('../config/database'); // ✅ Required to save to DB
+
 const router = express.Router();
 
 const storage = multer.diskStorage({
@@ -9,12 +11,10 @@ const storage = multer.diskStorage({
     const ext = path.extname(file.originalname).toLowerCase();
     const isImage = ['.jpg', '.jpeg', '.png', '.gif', '.svg'].includes(ext);
     const uploadDir = isImage ? 'images' : 'documents';
-    const fullPath = path.join(__dirname, `../public/uploads/${uploadDir}`);
+    const fullPath = path.join(__dirname, `../../public/uploads/${uploadDir}`);
 
-    // ✅ Ensure folder exists before saving file
     if (!fs.existsSync(fullPath)) {
       fs.mkdirSync(fullPath, { recursive: true });
-      console.log("✅ Created missing folder:", fullPath);
     }
 
     cb(null, fullPath);
@@ -28,7 +28,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-router.post('/upload', upload.single('file'), (req, res) => {
+router.post('/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -38,16 +38,23 @@ router.post('/upload', upload.single('file'), (req, res) => {
     const isImage = ['.jpg', '.jpeg', '.png', '.gif', '.svg'].includes(ext);
     const uploadDir = isImage ? 'images' : 'documents';
 
+    const file_path = `/uploads/${uploadDir}/${req.file.filename}`;
+    const attachment_type = isImage ? 'IMAGE' : 'DOCUMENT';
+
+    // You can store report_id later when the full report is submitted
+    // Or temporarily return it to frontend to associate later
+    // For now, return file metadata
     res.json({
       filename: req.file.filename,
-      file_path: `/uploads/${uploadDir}/${req.file.filename}`,
+      file_path,
       type: req.file.mimetype,
-      attachment_type: isImage ? 'IMAGE' : 'DOCUMENT'
+      attachment_type,
+      original_name: req.file.originalname
     });
 
   } catch (error) {
-    console.error("❌ Upload route error:", error);
-    res.status(500).json({ error: "File upload failed", details: error.message });
+    console.error("❌ Upload error:", error);
+    res.status(500).json({ error: "Upload failed", details: error.message });
   }
 });
 

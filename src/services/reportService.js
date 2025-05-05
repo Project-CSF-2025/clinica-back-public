@@ -25,8 +25,9 @@ const ReportService = {
                     id_report,
                     attachment_type: file.attachment_type || 'DOCUMENT',
                     file_path: file.file_path,
+                    original_name: file.original_name || file.name || 'unknown',
                     uploaded_at: new Date()
-                };
+                  };                  
     
                 console.log("📎 Saving attachment to DB:", attachmentData);
     

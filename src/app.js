@@ -14,9 +14,6 @@ app.use(cors());
 // Increase JSON payload limit to 10MB (or more, if needed)
 app.use(express.json({ limit: '10mb' }));
 
-// ✅ Serve static files (like uploaded images or docs)
-app.use(express.static(path.join(__dirname, 'public')));
-
 // ✅ Import all route modules
 const userRoutes = require('./routes/userRoutes');
 const reportRoutes = require('./routes/reportRoutes');
@@ -35,6 +32,15 @@ app.use('/api/messages', messagesRoutes);
 app.use('/api/admin-notes', adminNotesRoutes);
 app.use('/api/attachments', attachmentsRoutes);
 app.use('/api/admin', adminRoutes);
-app.use('/api', uploadRoutes); // Handles /api/upload route
+app.use('/api', uploadRoutes); 
+
+app.use((req, res, next) => {
+    if (req.url.startsWith('/uploads')) {
+      console.log('🟢 Static request received:', req.url);
+    }
+    next();
+  });
+  
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 module.exports = app;

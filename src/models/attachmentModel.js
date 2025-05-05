@@ -3,21 +3,22 @@ const { sql, pool } = require('../config/database');
 const AttachmentModel = {
   async createAttachment(attachmentData) {
     const query = `
-      INSERT INTO attachments (id_report, attachment_type, file_path)
+      INSERT INTO attachments (id_report, attachment_type, file_path, original_name)
       OUTPUT INSERTED.id_attachment
-      VALUES (@id_report, @attachment_type, @file_path)`;
+      VALUES (@id_report, @attachment_type, @file_path, @original_name)`;
 
     const request = pool.request();
     request.input('id_report', sql.Int, attachmentData.id_report);
     request.input('attachment_type', sql.VarChar, attachmentData.attachment_type);
     request.input('file_path', sql.VarChar, attachmentData.file_path);
+    request.input('original_name', sql.NVarChar, attachmentData.original_name); 
 
-    const result = await request.query(query);
+      const result = await request.query(query);
 
-    return {
-      insertId: result.recordset[0].id_attachment,
-      ...attachmentData
-    };
+      return {
+        insertId: result.recordset[0].id_attachment,
+        ...attachmentData
+      };
   },
 
   async getAttachmentsByReportId(reportId) {
