@@ -1,17 +1,11 @@
 const { sql, pool } = require('../config/database');
+const AttachmentModel = require('./attachmentModel');
 
 const ReportModel = {
   async createReport(reportData) {
-    // 🔧 FIX: req.body is undefined in model layer
     console.log("🧾 Incoming report data:", reportData);
-
     const userId = reportData.id_user || 1;
 
-    // 🔒 This was useful earlier, keeping for fallback safety (if needed again)
-    const normalizeBoolean = (value) =>
-      typeof value === 'string' && value.toLowerCase().startsWith('s'); // e.g., "si", "sí", etc.
-
-    // ✅ We now trust DTO passed correct booleans (true/false)
     const isConsequent = reportData.isConsequent;
     const avoidable = reportData.avoidable;
 
@@ -45,9 +39,29 @@ const ReportModel = {
     request.input('status', sql.VarChar, reportData.status || 'NO LEIDO');
 
     const result = await request.query(query);
+    const insertedReportId = result.recordset[0].id_report;
+
+    // ✅ Save attachments using AttachmentModel
+    if (reportData.files && reportData.files.length > 0) {
+      console.log("📁 Saving attachments:", reportData.files);
+
+      for (const file of reportData.files) {
+        await AttachmentModel.createAttachment({
+          id_report: insertedReportId,
+          attachment_type: file.attachment_type,
+          file_path: file.file_path,
+          original_name: file.original_name, 
+        });
+         
+        console.log("📦 Saving attachment:", file.original_name, file.name);
+      
+
+      }
+    }
+
     console.log("📌 Mapped booleans:", { isConsequent, avoidable });
 
-    return { insertId: result.recordset[0].id_report, report_code: reportData.report_code };
+    return { insertId: insertedReportId, report_code: reportData.report_code };
   },
 
   async getAllReports() {
@@ -79,16 +93,30 @@ const ReportModel = {
     if (!report_code) {
       throw new Error("❌ Report code is required");
     }
-
+  
     const query = `SELECT * FROM reports WHERE report_code = @report_code`;
     const result = await pool.request()
       .input('report_code', sql.VarChar, report_code)
       .query(query);
-
+  
     if (!result.recordset.length) return null;
+  
+    const report = result.recordset[0];
+  
+    // 🔄 Fetch attachments for this report
+    const attachmentsQuery = `
+      SELECT original_name AS name, file_path, attachment_type 
+      FROM attachments 
+      WHERE id_report = @id_report`;
 
-    return result.recordset[0];
-  },
+    const attachmentsResult = await pool.request()
+      .input('id_report', sql.Int, report.id_report)
+      .query(attachmentsQuery);
+  
+    report.files = attachmentsResult.recordset || [];
+  
+    return report;
+  },  
 
   async getReportById(id_report) {
     const query = `SELECT * FROM reports WHERE id_report = @id_report`;

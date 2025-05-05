@@ -35,9 +35,9 @@ const ReportController = {
 
             // Add file paths to request body
             const reportData = {
-                ...req.body,
-                attachments: filePaths, // Store file paths in DB
-            };
+              ...req.body,
+              attachments: filePaths, // make sure files come in as JSON if needed
+            };            
 
             // Call service with updated report data
             const newReport = await ReportService.createReport(reportData);
