@@ -8,6 +8,7 @@ const router = express.Router();
 // ✅ DOWNLOAD ROUTE — must go first
 router.get('/download/:filename', (req, res) => {
   const filename = req.params.filename;
+  console.log("🟡 Requested filename:", filename);
 
   if (!filename) {
     return res.status(400).json({ error: 'Falta el nombre del archivo' });
@@ -16,8 +17,10 @@ router.get('/download/:filename', (req, res) => {
   const ext = path.extname(filename).toLowerCase();
   const folder = ['.jpg', '.jpeg', '.png', '.gif', '.svg'].includes(ext) ? 'images' : 'documents';
   const filePath = path.join(__dirname, `../../public/uploads/${folder}/${filename}`);
+  console.log("📁 Looking for file at:", filePath);
 
   if (!fs.existsSync(filePath)) {
+    console.warn("❌ File not found at path:", filePath);
     return res.status(404).json({ error: 'Archivo no encontrado' });
   }
 

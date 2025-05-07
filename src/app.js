@@ -43,7 +43,5 @@ app.use((req, res, next) => {
   
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
-const downloadRoutes = require('./routes/downloadRoutes');
-app.use('/api/attachments', downloadRoutes);
 
 module.exports = app;
