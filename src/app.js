@@ -4,7 +4,7 @@ const path = require('path');
 
 const app = express();
 
-// ✅ Middleware for logging all incoming requests
+// Middleware for logging all incoming requests
 app.use((req, res, next) => {
     console.log(`Incoming Request: ${req.method} ${req.url}`);
     next();
@@ -14,7 +14,7 @@ app.use(cors());
 // Increase JSON payload limit to 10MB (or more, if needed)
 app.use(express.json({ limit: '10mb' }));
 
-// ✅ Import all route modules
+// Import all route modules
 const userRoutes = require('./routes/userRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const reportStatusHistoryRoutes = require('./routes/reportStatusHistoryRoutes');
