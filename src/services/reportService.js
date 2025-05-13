@@ -89,6 +89,19 @@ const ReportService = {
 
     async getReportsForExport() {
         const reports = await ReportModel.getAllReports();
+    
+        function formatShortDate(dateString) {
+            if (!dateString) return "";
+            const date = new Date(dateString);
+            return date.toLocaleString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    
         return reports.map(report => ({
             Código: report.report_code,
             Departamento: report.department,
@@ -96,9 +109,13 @@ const ReportService = {
             Ubicación: report.location,
             Asunto: report.subject,
             Estado: report.status,
-            Fecha: new Date(report.created_at).toLocaleString('es-ES')
+            Fecha: formatShortDate(report.created_at),
+            "Fecha Incidencia": formatShortDate(report.date_time),
+            "Hay Consecuencias": report.is_consequent ? "Sí" : "No",
+            "Tipo Consecuencias": report.consequence_type || "",
+            "Evitabilidad": report.avoidable ? "Evitables" : "No evitables"
         }));
-    }
+    }            
 };
 
 async function generateUniqueReportCode(length = 8) {

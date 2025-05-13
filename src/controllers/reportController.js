@@ -125,14 +125,18 @@ const ReportController = {
     
             // Explicit fields for consistent order
             const fields = [
-                { label: 'Código', value: 'Código' },
-                { label: 'Departamento', value: 'Departamento' },
-                { label: 'Profesión', value: 'Profesión' },
-                { label: 'Ubicación', value: 'Ubicación' },
-                { label: 'Asunto', value: 'Asunto' },
-                { label: 'Estado', value: 'Estado' },
-                { label: 'Fecha', value: 'Fecha' }
-            ];
+              { label: 'Código', value: 'Código' },
+              { label: 'Departamento', value: 'Departamento' },
+              { label: 'Profesión', value: 'Profesión' },
+              { label: 'Ubicación', value: 'Ubicación' },
+              { label: 'Asunto', value: 'Asunto' },
+              { label: 'Estado', value: 'Estado' },
+              { label: 'Fecha', value: 'Fecha' },
+              { label: 'Fecha Incidencia', value: 'Fecha Incidencia' },
+              { label: 'Hay Consecuencias', value: 'Hay Consecuencias' },
+              { label: 'Tipo de Consecuencias', value: 'Tipo de Consecuencias' },
+              { label: 'Evitabilidad', value: 'Evitabilidad' }
+            ];                  
     
             const json2csvParser = new Parser({ fields, withBOM: true });
             const csv = json2csvParser.parse(data);
