@@ -15,6 +15,7 @@ This backend is meant to connect with the [Clinica Frontend](https://github.com/
 - Track report status history (NO LEIDO → EN PROCESO → RESUELTO)
 - Send email notifications when messages or status updates happen
 - Support frontend dashboards for viewing reports, stats, and filters
+- Uses JSON files for dropdowns (departments, professions, consequences), making the system easily scalable and maintainable
 
 ---
 
