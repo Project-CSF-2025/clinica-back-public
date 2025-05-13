@@ -1,4 +1,4 @@
-# Incident Reporting System – Backend
+# 🩺 Clinic Incident Reporting – Backend
 
 This is the backend system for Clinic Incident Reporting, a web-based platform that allows hospital or clinic staff to send anonymous incident reports to help improve safety and communication. Admins can manage reports, track their status, and respond to users securely.
 
