@@ -128,7 +128,6 @@ To create an admin, generate a hashed password using bcrypt and insert it manual
 This backend was developed by:
 
 * Pragati Juyal
-* Kanako Inamine
 
 As part of a full-stack web development school project.
 
@@ -136,5 +135,7 @@ As part of a full-stack web development school project.
 
 ## License
 
-This project is provided for educational purposes only.
+This project is licensed under the MIT License.
+It is provided as-is and the authors are not liable for any damages.
+Use in production is permitted with proper credit.
 
