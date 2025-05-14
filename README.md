@@ -137,7 +137,7 @@ As part of a full-stack web development school project.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](https://github.com/Project-CSF-2025/clinica-docs/blob/main/LICENSE).
 It is provided as-is and the authors are not liable for any damages.
 Use in production is permitted with proper credit.
 
